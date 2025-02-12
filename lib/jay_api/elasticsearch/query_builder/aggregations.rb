@@ -7,6 +7,7 @@ require_relative 'aggregations/avg'
 require_relative 'aggregations/filter'
 require_relative 'aggregations/scripted_metric'
 require_relative 'aggregations/sum'
+require_relative 'aggregations/max'
 require_relative 'aggregations/terms'
 require_relative 'aggregations/value_count'
 require_relative 'aggregations/top_hits'
@@ -78,6 +79,16 @@ module JayAPI
             ::JayAPI::Elasticsearch::QueryBuilder::Aggregations::ScriptedMetric.new(
               name, map_script: map_script, combine_script: combine_script,
                     reduce_script: reduce_script, init_script: init_script
+            )
+          )
+        end
+
+        # Adds a +max+ type aggregation. For information about the parameters
+        # @see JayAPI::Elasticsearch::QueryBuilder::Aggregations::Max#initialize
+        def max(name, field:)
+          add(
+            ::JayAPI::Elasticsearch::QueryBuilder::Aggregations::Max.new(
+              name, field: field
             )
           )
         end

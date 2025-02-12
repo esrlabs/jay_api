@@ -186,6 +186,40 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::Aggregations do
     end
   end
 
+  describe '#max' do
+    subject(:method_call) do
+      aggregations.max(
+        name, field: field
+      )
+    end
+
+    let(:name) { 'max_price' }
+    let(:field) { 'price' }
+
+    let(:max) do
+      instance_double(
+        JayAPI::Elasticsearch::QueryBuilder::Aggregations::Max,
+        to_h: { terms: 'Max#to_h' }
+      )
+    end
+
+    before do
+      allow(JayAPI::Elasticsearch::QueryBuilder::Aggregations::Max)
+        .to receive(:new).and_return(max)
+    end
+
+    it 'creates the Max instance with the expected parameters' do
+      expect(JayAPI::Elasticsearch::QueryBuilder::Aggregations::Max)
+        .to receive(:new).with(name, field: field)
+
+      method_call
+    end
+
+    it 'adds the Max instance to the array of aggregations' do
+      expect { method_call }.to change(aggregations, :to_h).to(aggs: { terms: 'Max#to_h' })
+    end
+  end
+
   describe '#sum' do
     subject(:method_call) do
       aggregations.sum(

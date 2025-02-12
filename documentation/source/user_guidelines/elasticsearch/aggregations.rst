@@ -109,6 +109,39 @@ This would produce the following query:
      }
    }
 
+max
+---
+
+This is a single-value aggregation that calculates the maximum value in the
+specified field among all matched documents. Detailed information on how to use
+this type of aggregation can be found on `Elasticsearch's documentation on the Max aggregation`_
+
+Code example:
+
+.. code-block:: ruby
+
+   query_builder = JayAPI::Elasticsearch::QueryBuilder.new
+   query_builder.aggregations.max('max_price', field: 'price')
+
+This would produce the following query:
+
+.. code-block:: json
+
+   {
+     "query": {
+       "match_all": { }
+     },
+     "aggs": {
+       "max_price": {
+         "max": {
+           "field": "price"
+         }
+       }
+     }
+   }
+
+.. _`Elasticsearch's documentation on the Max aggregation`: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-max-aggregation.html
+
 value_count
 -----------
 

@@ -1,0 +1,15 @@
+### Generic smell configuration
+
+detectors:
+  TooManyInstanceVariables:
+    max_instance_variables: 10
+  TooManyStatements:
+    max_statements: 10
+  DuplicateMethodCall:
+    max_calls: 3
+  NestedIterators:
+    max_allowed_nesting: 2
+  UncommunicativeVariableName:
+    accept: [_, e]
+  LongParameterList:
+    max_params: 5

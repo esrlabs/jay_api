@@ -1,0 +1,17 @@
+AllCops:
+  NewCops: enable
+  Exclude:
+    - spec/spec_helper.rb
+Layout/LineLength:
+  Max: 120
+Metrics/BlockLength:
+  Exclude:
+    - jay_api.gemspec
+    - spec/**/*
+Style/FrozenStringLiteralComment:
+  Exclude:
+    - bin/console
+Metrics/MethodLength:
+  Max: 15
+Gemspec/RequireMFA:
+  Enabled: false

@@ -1,0 +1,10 @@
+htmls:
+  index: ~
+  all_internal:
+    overall:
+      template_data: ~
+      some_new: attribute
+    off_target:
+      template_data:
+        breadcrumbs: ['New', 'Breadcrumbs']
+    on_target: ~

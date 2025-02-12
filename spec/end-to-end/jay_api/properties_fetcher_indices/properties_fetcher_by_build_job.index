@@ -1,0 +1,86 @@
+[
+  {
+    "build_properties": {
+      "product_name": "WhoCares",
+      "version_code": "adasdas",
+      "version_name": "asdasdasd",
+      "version_downgrade_protection": "0002",
+      "build_number": 183,
+      "build_name": "SOME-RELEASE-BUILD",
+      "base_package": "1.2.3.4.5",
+      "odx_version_vd": "012038",
+      "odx_version_pd": "009034",
+      "build_name_path": "build/name/path",
+      "eth_switch_version": "1111"
+    },
+    "repos": [
+      {
+        "repo": "some/repo/name1",
+        "sha1": "cd949dfc98adc73f6d3f7e1a1b8d9d3faa730c56"
+      },
+      {
+        "repo": "some/repo/name2",
+        "sha1": "e67ff56a0459472b79f4792d0cf30524b6c47022"
+      }
+    ],
+    "server_url": "https://artifactory.com/artifactory/",
+    "sut_revision": "0019-RC1",
+    "timestamp": "2023/08/04 09:21:43"
+  },
+  {
+    "build_properties": {
+      "product_name": "WhoCares",
+      "version_code": "adasdas",
+      "version_name": "asdasdasd",
+      "version_downgrade_protection": "0002",
+      "build_number": 183,
+      "build_name": "SOME-RELEASE-BUILD",
+      "base_package": "1.2.3.4.5",
+      "odx_version_vd": "012038",
+      "odx_version_pd": "009034",
+      "build_name_path": "build/name/path",
+      "eth_switch_version": "1111"
+    },
+    "repos": [
+      {
+        "repo": "some/repo/name1",
+        "sha1": "cd949dfc98adc73f6d3f7e1a1b8d9d3faa730c56"
+      },
+      {
+        "repo": "some/repo/name2",
+        "sha1": "e67ff56a0459472b79f4792d0cf30524b6c47022"
+      }
+    ],
+    "server_url": "https://artifactory.com/artifactory/",
+    "sut_revision": "0019-RC1",
+    "timestamp": "2023/08/04 09:21:43"
+  },
+  {
+    "build_properties": {
+      "product_name": "WhoCares",
+      "version_code": "adasdas",
+      "version_name": "asdasdasd",
+      "version_downgrade_protection": "0002",
+      "build_number": 183,
+      "build_name": "ANOTHER-JOB-NAME",
+      "base_package": "1.2.3.4.5",
+      "odx_version_vd": "012038",
+      "odx_version_pd": "009034",
+      "build_name_path": "build/name/path",
+      "eth_switch_version": "1111"
+    },
+    "repos": [
+      {
+        "repo": "some/repo/name1",
+        "sha1": "cd949dfc98adc73f6d3f7e1a1b8d9d3faa730c56"
+      },
+      {
+        "repo": "some/repo/name2",
+        "sha1": "e67ff56a0459472b79f4792d0cf30524b6c47022"
+      }
+    ],
+    "server_url": "https://artifactory.com/artifactory/",
+    "sut_revision": "0019-RC1",
+    "timestamp": "2023/08/04 09:21:43"
+  }
+]

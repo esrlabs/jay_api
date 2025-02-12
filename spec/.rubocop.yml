@@ -1,0 +1,15 @@
+inherit_from: ../.rubocop.yml
+
+require:
+  - rubocop-rspec
+
+RSpec/MessageSpies:
+  EnforcedStyle: receive
+RSpec/MultipleExpectations:
+  Max: 2
+RSpec/MultipleMemoizedHelpers:
+  Enabled: false
+RSpec/NestedGroups:
+  Max: 5
+RSpec/MetadataStyle:
+  EnforcedStyle: hash

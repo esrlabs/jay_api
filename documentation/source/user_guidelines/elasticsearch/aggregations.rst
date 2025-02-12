@@ -1,0 +1,238 @@
+Aggregations
+============
+
+The :doc:`query_builder` class has an ``aggregations`` method which allows you
+to add aggregations to the query. This page explains how this method can be
+used.
+
+The ``aggregations`` method returns an instance of the ``Aggregations`` class,
+therefore this class's method can be chained after the ``aggregations`` call.
+Please check the examples provided below to get an idea of how this works.
+
+terms
+-----
+
+This is a bucket-type aggregation which can count the number of individual
+values in a field. Detailed information on how to use this type of aggregation
+can be found on `Elasticsearch's documentation on the Terms aggregation`_
+
+Code example:
+
+.. code-block:: ruby
+
+   query_builder = JayAPI::Elasticsearch::QueryBuilder.new
+   query_builder.aggregations.terms('genres', field: 'genre')
+
+This would produce the following query:
+
+.. code-block:: json
+
+   {
+     "query": {
+       "match_all": { }
+     },
+     "aggs": {
+       "genres": {
+         "terms": {
+           "field": "genre"
+         }
+       }
+     }
+   }
+
+avg
+---
+
+This is a single-value aggregation that calculates the average value of a field
+among all the matched documents.  Detailed information on how to use this type
+of aggregation can be found on `Elasticsearch's documentation on the Avg aggregation`_
+
+Code example:
+
+.. code-block:: ruby
+
+   query_builder = JayAPI::Elasticsearch::QueryBuilder.new
+   query_builder.aggregations.avg('avg_grade', field: 'grade')
+
+This would produce the following query:
+
+.. code-block:: json
+
+   {
+     "query": {
+       "match_all": {
+       }
+     },
+     "aggs": {
+       "avg_grade": {
+         "avg": {
+           "field": "grade"
+         }
+       }
+     }
+   }
+
+sum
+---
+
+This is a single-value aggregation that calculates the sum of the values in the
+specified field through all the matched documents. Detailed information on how
+to use this type of aggregation can be found on
+`Elasticsearch's documentation on the Sum aggregation`_
+
+Code example:
+
+.. code-block:: ruby
+
+   query_builder = JayAPI::Elasticsearch::QueryBuilder.new
+   query_builder.query.term(field: 'type', value: 'hat')
+   query_builder.aggregations.sum('hat_prices', field: 'price')
+
+This would produce the following query:
+
+.. code-block:: json
+
+   {
+     "query": {
+       "term": {
+         "type": {
+           "value": "hat"
+         }
+       }
+     },
+     "aggs": {
+       "hat_prices": {
+         "sum": {
+           "field": "price"
+         }
+       }
+     }
+   }
+
+value_count
+-----------
+
+This is a single-value aggregation that calculates the number of non-null values
+in the specified field through all the matched documents. Detailed information
+on how to use this type of aggregation can be found on
+`Elasticsearch's documentation on the Value Count aggregation`_
+
+Code example:
+
+.. code-block:: ruby
+
+   query_builder = JayAPI::Elasticsearch::QueryBuilder.new
+   query_builder.aggregations.value_count('types_count', field: 'type')
+
+This would produce the following query:
+
+.. code-block:: json
+
+   {
+     "query": {
+       "match_all": { }
+     },
+     "aggs": {
+       "types_count": {
+         "value_count": { "field": "type" }
+       }
+     }
+   }
+
+filter
+------
+
+This is a single bucket aggregation that filters the set of documents using a
+query to narrow it down. It is normally used in conjunction with other
+aggregations to create break downs of the whole data set. Detailed information
+on how to use this type of aggregation can be found on
+`Elasticsearch's documentation on the Filter aggregation`_
+
+Code example:
+
+.. code-block:: ruby
+
+   query_builder = JayAPI::Elasticsearch::QueryBuilder.new
+   query_builder.aggregations.avg('overall_avg_price', field: 'price')
+   query_builder.aggregations.filter('t_shirts') do |query|
+     query.term(field: 'type', value: 't-shirt')
+   end.aggs do |aggs|
+     aggs.avg('avg_price', field: 'price')
+   end
+
+This would generate the following query:
+
+.. code-block:: json
+
+   {
+     "query": { "match_all": {} },
+     "aggs": {
+       "overall_avg_price": { "avg": { "field": "price" } },
+       "t_shirts": {
+         "filter": { "term": { "type": { "value": "t-shirt" } } },
+         "aggs": {
+           "avg_price": { "avg": { "field": "price" } }
+         }
+       }
+     }
+   }
+
+scripted_metric
+---------------
+
+This is a special type of single-value aggregation which can be used to build
+custom aggregations that return a single value. This type of aggregation takes
+a set of `Painless`_ scripts and returns a single value which can be a single
+number an array or even a map.
+
+Detailed information on how to use this type of aggregation can be found on
+`Elasticsearch's documentation on the Scripted Metric aggregation`_
+
+.. code-block:: ruby
+
+   query_builder = JayAPI::Elasticsearch::QueryBuilder.new
+   query_builder.aggregations.scripted_metric(
+     'profit',
+     init_script: 'state.transactions = []',
+     map_script: "state.transactions.add(doc.type.value == 'sale' ? doc.amount.value : -1 * doc.amount.value)",
+     combine_script: 'double profit = 0; for (t in state.transactions) { profit += t } return profit',
+     reduce_script: 'double profit = 0; for (a in states) { profit += a } return profit'
+   )
+
+The ``init_script`` is optional, the rest of the scripts are required.
+
+The code above would produce the following query:
+
+.. code-block:: json
+
+   {
+     "query": {
+       "match_all": {
+       }
+     },
+     "aggs": {
+       "profit": {
+         "scripted_metric": {
+           "init_script": "state.transactions = []",
+           "map_script": "state.transactions.add(doc.type.value == 'sale' ? doc.amount.value : -1 * doc.amount.value)",
+           "combine_script": "double profit = 0; for (t in state.transactions) { profit += t } return profit",
+           "reduce_script": "double profit = 0; for (a in states) { profit += a } return profit"
+         }
+       }
+     }
+   }
+
+.. warning::
+
+   These scripts **must** be simple strings, they do not follow the pattern of
+   other scripted elements in Elasticsearch's DSL. Do not use
+   ``QueryBuilder::Script`` objects here. Their use will produce unintended
+   results.
+
+.. _`Elasticsearch's documentation on the Terms aggregation`: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html
+.. _`Elasticsearch's documentation on the Avg aggregation`: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-avg-aggregation.html
+.. _`Elasticsearch's documentation on the Sum aggregation`: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-sum-aggregation.html
+.. _`Elasticsearch's documentation on the Value Count aggregation`: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-valuecount-aggregation.html
+.. _`Elasticsearch's documentation on the Filter aggregation`: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-filter-aggregation.html
+.. _`Elasticsearch's documentation on the Scripted Metric aggregation`: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-scripted-metric-aggregation.html
+.. _`Painless`: https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-scripting-painless.html

@@ -1,0 +1,100 @@
+[
+  {
+    "name": "Nahida",
+    "element": "Dendro",
+    "weapon": "Catalyst",
+    "stars": 5,
+    "origin": "Sumeru"
+  },
+  {
+    "name": "Yanfei",
+    "element": "Pyro",
+    "weapon": "Catalyst",
+    "stars": 4,
+    "origin": "Liyue"
+  },
+  {
+    "name": "Sangonomiya Kokomi",
+    "element": "Hydro",
+    "weapon": "Catalyst",
+    "stars": 5,
+    "origin": "Inazuma"
+  },
+  {
+    "name": "Lisa",
+    "element": "Electro",
+    "weapon": "Catalyst",
+    "stars": 4,
+    "origin": "Mondstadt"
+  },
+  {
+    "name": "Raiden Shogun",
+    "element": "Electro",
+    "weapon": "Polearm",
+    "stars": 5,
+    "origin": "Inazuma"
+  },
+  {
+    "name": "Yoimiya",
+    "element": "Pyro",
+    "weapon": "Bow",
+    "stars": 5,
+    "origin": "Inazuma"
+  },
+  {
+    "name": "Sayu",
+    "element": "Anemo",
+    "weapon": "Greatsword",
+    "stars": 4,
+    "origin": "Inazuma"
+  },
+  {
+    "name": "Kamisato Ayaka",
+    "element": "Cryo",
+    "weapon": "Sword",
+    "stars": 5,
+    "origin": "Inazuma"
+  },
+  {
+    "name": "Jean",
+    "element": "Anemo",
+    "weapon": "Sword",
+    "stars": 5,
+    "origin": "Mondstadt"
+  },
+  {
+    "name": "Rosaria",
+    "element": "Cryo",
+    "weapon": "Polearm",
+    "stars": 4,
+    "origin": "Mondstadt"
+  },
+  {
+    "name": "Barbara",
+    "element": "Hydro",
+    "weapon": "Catalyst",
+    "stars": 4,
+    "origin": "Mondstadt"
+  },
+  {
+    "name": "Keqing",
+    "element": "Electro",
+    "weapon": "Sword",
+    "stars": 5,
+    "origin": "Liyue"
+  },
+  {
+    "name": "Collei",
+    "element": "Dendro",
+    "weapon": "Bow",
+    "stars": 5,
+    "origin": "Sumeru"
+  },
+  {
+    "name": "Nilou",
+    "element": "Hydro",
+    "weapon": "Sword",
+    "stars": 5,
+    "origin": "Sumeru"
+  }
+]

@@ -1,0 +1,19 @@
+htmls:
+  index:
+    render_config:
+      config: ~
+    template_data:
+      breadcrumbs: Start
+  all_internal:
+    overall:
+      template_data:
+        filter: { category: ['software', 'architecture', 'module'] }
+        breadcrumbs: ['SWE Specs', 'Overall']
+      some_new: attribute
+    off_target:
+      template_data:
+        breadcrumbs: ['New', 'Breadcrumbs']
+    on_target:
+      template_data:
+        filter: { test_setups: on_target, category: ['software', 'architecture', 'module'] }
+        breadcrumbs: ['SWE Specs', 'On Target']

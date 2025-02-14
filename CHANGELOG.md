@@ -8,6 +8,10 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+### Added
+- Added the `Aggregations::Max` class. To model Elasticsearch's `max`
+  aggregation type.
+
 ## [27.0.0] - 2025-01-02
 
 ### Fixed

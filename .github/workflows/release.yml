@@ -1,0 +1,45 @@
+name: Release and Deploy
+
+on:
+  push:
+    branches: [ "master" ]
+    paths:
+      - lib/jay_api/version.rb
+
+jobs:
+  build:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Needed to create the tag and the release
+      id-token: write # Needed to push to rubygems.org as a trusted publisher
+    environment: release
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Ruby 2.7
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.7.7
+    - name: Build
+      run: |
+        bundler install
+        rake clobber
+        rake build
+    - name: Get Version
+      run: |
+        echo "GEM_VERSION=$(bundler exec ruby -e 'require "jay_api/version"; print JayAPI::VERSION')" | tee -a $GITHUB_ENV
+    - name: Create Release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Github Actions
+        TAG_NAME: ${{ env.GEM_VERSION }}
+        NOTES: "[Changelog](${{ github.server_url }}/${{ github.repository }}/blob/${{ env.GEM_VERSION }}/CHANGELOG.md)"
+        TITLE: Release ${{ env.GEM_VERSION }}
+        TARGET: ${{ github.ref_name }}
+      run: |
+        gh release create $TAG_NAME --notes "$NOTES" --title "$TITLE" --target $TARGET pkg/jay_api-*.gem
+    - name: Configure trusted publishing credentials
+      uses: rubygems/configure-rubygems-credentials@v1.0.0
+    - name: Deploy
+      run: |
+        gem push pkg/jay_api-*.gem

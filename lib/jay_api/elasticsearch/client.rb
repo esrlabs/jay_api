@@ -4,7 +4,7 @@ require 'elasticsearch/api/namespace/tasks'
 require 'elasticsearch/transport/transport/errors'
 require 'faraday/error'
 
-require 'jay_api/abstract/connection'
+require_relative '../abstract/connection'
 
 module JayAPI
   module Elasticsearch

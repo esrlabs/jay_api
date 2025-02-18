@@ -1,0 +1,41 @@
+# This workflow runs Rubocop on the Pull Requests to make sure no linter warnings slip by.
+
+name: Ruby Linters
+
+on:
+  pull_request:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+
+    runs-on: ubuntu-latest
+
+    env:
+      BUNDLE_ONLY: linters
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+    - name: Install Gems
+      run: |
+        bundler install
+    - name: Run Rubocop
+      continue-on-error: true
+      uses: reviewdog/action-rubocop@v2.19.1
+      with:
+        skip_install: true
+        rubocop_version: gemfile
+        rubocop_extensions: rubocop-rspec:gemfile
+        use_bundler: true
+    - name: reek
+      continue-on-error: true
+      uses: reviewdog/action-reek@v1
+      with:
+        reek_version: gemfile

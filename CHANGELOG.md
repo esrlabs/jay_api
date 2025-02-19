@@ -8,6 +8,8 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+## [27.1.0] - 2025-02-19
+
 ### Added
 - The `max` method to the `QueryBuilders::Aggregations` class.
 - Added the `Aggregations::Max` class. To model Elasticsearch's `max`

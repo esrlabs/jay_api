@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'query_builder/aggregations'
+require_relative 'query_builder/errors'
 require_relative 'query_builder/query_clauses'
 require_relative 'query_builder/script'
 

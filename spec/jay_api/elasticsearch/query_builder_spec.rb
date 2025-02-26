@@ -195,7 +195,7 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder do
         expect { query_builder.from 'five' }
           .to raise_error(
             ArgumentError,
-            'Expected `from` to be Integer, String given'
+            'Expected `from` to be one of: Integer but String was given'
           )
       end
     end
@@ -212,18 +212,22 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder do
   end
 
   describe '#source' do
+    subject(:method_call) { query_builder.source(filter_expr) }
+
+    let(:filter_expr) { 'obj.*' }
+
     context 'with a value which is not a String' do
       it 'raises an ArgumentError' do
         expect { query_builder.source [] }
           .to raise_error(
             ArgumentError,
-            'Expected `source` to be String, Array given'
+            'Expected `source` to be one of: String but Array was given'
           )
       end
     end
 
     it 'returns itself' do
-      expect(query_builder.source('obj.*')).to eq(query_builder)
+      expect(method_call).to eq(query_builder)
     end
   end
 
@@ -237,7 +241,7 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder do
         expect { query_builder.size 'five' }
           .to raise_error(
             ArgumentError,
-            'Expected `size` to be Integer, String given'
+            'Expected `size` to be one of: Integer but String was given'
           )
       end
 
@@ -263,7 +267,7 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder do
         expect { query_builder.sort('name') }
           .to raise_error(
             ArgumentError,
-            'Expected `sort` to be Hash, String given'
+            'Expected `sort` to be one of: Hash but String was given'
           )
       end
     end
@@ -295,7 +299,7 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder do
 
       it 'raises an ArgumentError' do
         expect { method_call }.to raise_error(
-          ArgumentError, 'Expected `field` to be String, Array given'
+          ArgumentError, 'Expected `field` to be one of: String but Array was given'
         )
       end
     end

@@ -150,12 +150,15 @@ module JayAPI
       # @param [Object] value The value of the argument.
       # @param [String] argument_name The name of the argument (for the error
       #   message).
-      # @param [Class] expected_type The expected type of +value+
-      # @raise [ArgumentError] If the value is not an instance of the class.
-      def check_argument(value, argument_name, expected_type)
-        return if value.is_a?(expected_type)
+      # @param [Class, Array<Class>] allowed_types The list of classes that
+      #   +value+ might have.
+      # @raise [ArgumentError] If the value is not an instance of the any of the
+      #   classes in +allowed_types+.
+      def check_argument(value, argument_name, *allowed_types)
+        return if allowed_types.any? { |allowed_type| value.is_a?(allowed_type) }
 
-        raise ArgumentError, "Expected `#{argument_name}` to be #{expected_type}, #{value.class} given"
+        raise ArgumentError, "Expected `#{argument_name}` to be one of: " \
+                             "#{allowed_types.map(&:to_s).join(', ')} but #{value.class} was given"
       end
 
       # Checks that the given argument is positive (>= 0)

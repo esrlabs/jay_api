@@ -84,10 +84,13 @@ module JayAPI
       end
 
       # Adds a +_source+ clause to the query.
-      # @param [String] filter_expr Expression used for filtering source.
+      # @param [FalseClass, String, Array<String>, Hash] filter_expr Expression
+      #   used for source filtering.
+      # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-fields.html#source-filtering
+      #   For more information on what kind of expressions are allowed.
       # @return [QueryBuilder] itself so that other methods can be chained.
       def source(filter_expr)
-        check_argument(filter_expr, 'source', String)
+        check_argument(filter_expr, 'source', FalseClass, String, Array, Hash)
         @source = filter_expr
         self
       end
@@ -178,7 +181,7 @@ module JayAPI
         query_hash = {}
         query_hash[:from] = @from if @from
         query_hash[:size] = @size if @size
-        query_hash[:_source] = @source if @source
+        query_hash[:_source] = @source unless @source.nil?
         query_hash[:query] = query.to_h
 
         if @sort.any?

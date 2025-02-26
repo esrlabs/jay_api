@@ -8,6 +8,10 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+### Added
+- `QueryBuilder#source` can now take `false`, `Array` and `Hash` in addition to
+  simple strings.
+
 ## [27.1.0] - 2025-02-19
 
 ### Added

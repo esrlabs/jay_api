@@ -155,12 +155,7 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder do
   end
 
   let(:query_clauses_hash) do
-    {
-      query_string: {
-        fields: ['some_field'],
-        query: 'a very exotic query'
-      }
-    }
+    { match_all: {} }
   end
 
   let(:bool_clause) do
@@ -216,13 +211,83 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder do
 
     let(:filter_expr) { 'obj.*' }
 
-    context 'with a value which is not a String' do
+    context 'when filter_expr is not one of the allowed types' do
+      let(:filter_expr) { 3 + 7i }
+
       it 'raises an ArgumentError' do
-        expect { query_builder.source [] }
+        expect { method_call }
           .to raise_error(
             ArgumentError,
-            'Expected `source` to be one of: String but Array was given'
+            'Expected `source` to be one of: FalseClass, String, Array, Hash but Complex was given'
           )
+      end
+    end
+
+    context 'when filter_expr is false' do
+      let(:filter_expr) { false }
+
+      let(:expected_query) do
+        {
+          query: { match_all: {} },
+          _source: false
+        }
+      end
+
+      it 'produces the expected query' do
+        expect(method_call.to_query).to eq(expected_query)
+      end
+    end
+
+    context 'when filter_expr is a string' do
+      let(:filter_expr) { 'obj.*' }
+
+      let(:expected_query) do
+        {
+          query: { match_all: {} },
+          _source: 'obj.*'
+        }
+      end
+
+      it 'produces the expected query' do
+        expect(method_call.to_query).to eq(expected_query)
+      end
+    end
+
+    context 'when filter_expr is an array' do
+      let(:filter_expr) { %w[obj1.* obj2.*] }
+
+      let(:expected_query) do
+        {
+          query: { match_all: {} },
+          _source: %w[obj1.* obj2.*]
+        }
+      end
+
+      it 'produces the expected query' do
+        expect(method_call.to_query).to eq(expected_query)
+      end
+    end
+
+    context 'when filter_expr is a hash' do
+      let(:filter_expr) do
+        {
+          includes: %w[obj1.* obj2.*],
+          excludes: %w[*.description]
+        }
+      end
+
+      let(:expected_query) do
+        {
+          query: { match_all: {} },
+          _source: {
+            includes: %w[obj1.* obj2.*],
+            excludes: %w[*.description]
+          }
+        }
+      end
+
+      it 'produces the expected query' do
+        expect(method_call.to_query).to eq(expected_query)
       end
     end
 

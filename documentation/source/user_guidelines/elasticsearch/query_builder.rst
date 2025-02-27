@@ -144,9 +144,27 @@ Example:
 With the above query only the attributes inside the nested structure ``obj``
 will be returned.
 
-.. note::
+It is also possible to completely remove the document's source from the result
+by passing ``false`` as parameter:
 
-  Only string type expressions are accepted for this clause at the moment.
+.. code-block:: ruby
+
+   query_builder.source(false)
+
+Elasticsearch also allows the use of arrays to grab elements from multiple
+objects:
+
+.. code-block:: ruby
+
+   query_builder.source(%w[test_case.* meta_data.*])
+
+And the use of Hashes to include or exclude parts of the document, for example:
+
+.. code-block:: ruby
+
+   query_builder.source(
+     { includes: 'test_case.*' , excludes: 'test_case.test_steps'}
+   )
 
 #to_h and #to_query
 -------------------

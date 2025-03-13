@@ -8,6 +8,8 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+## [27.2.1] - 2025-03-14
+
 ### Fixed
 - `PropertiesFetcher#last` now correctly returns the last set of properties
   (ordered chronologically).

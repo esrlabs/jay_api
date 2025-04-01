@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'active_support'
+require 'active_support/core_ext/hash/except'
 require 'jay_api/git/gerrit/gitiles_helper'
 
 RSpec.describe JayAPI::Git::Gerrit::GitilesHelper do
@@ -35,9 +37,16 @@ RSpec.describe JayAPI::Git::Gerrit::GitilesHelper do
 
   describe '#gitiles_url' do
     subject(:method_call) do
-      test_object.gitiles_url(
-        repository: repository, refspec: refspec, path: path, line_number: line_number
-      )
+      test_object.gitiles_url(**method_params)
+    end
+
+    let(:repository) { 'ssh://gerrit.local:29418/android/development' }
+    let(:refspec) { 'bfd7ab49145d7fe9a4f5a175ce53ccacbbede2a1' }
+    let(:path) { 'build/optional.json' }
+    let(:line_number) { 12 }
+
+    let(:method_params) do
+      { repository: repository, refspec: refspec, path: path, line_number: line_number }
     end
 
     context 'when the refspec is a branch and the URL contains a user name' do
@@ -90,6 +99,39 @@ RSpec.describe JayAPI::Git::Gerrit::GitilesHelper do
       it 'generates the expected Gitiles URL' do
         expect(method_call).to eq(expected_url)
       end
+    end
+
+    shared_examples_for '#gitiles_url when no path is given' do
+      let(:expected_url) { 'https://gerrit.local/plugins/gitiles/android/development/+/bfd7ab49145d7fe9a4f5a175ce53ccacbbede2a1' }
+
+      it 'generates the expected Gitiles URL (pointing to the refspec itself)' do
+        expect(method_call).to eq(expected_url)
+      end
+    end
+
+    context 'when no path or line number are given' do
+      let(:method_params) { super().except(:path, :line_number) }
+
+      it_behaves_like '#gitiles_url when no path is given'
+    end
+
+    context 'when no path is given but a line number is' do
+      let(:method_params) { super().except(:path) }
+
+      it_behaves_like '#gitiles_url when no path is given'
+    end
+
+    context 'when path and line number are both given as nil' do
+      let(:path) { nil }
+      let(:line_number) { nil }
+
+      it_behaves_like '#gitiles_url when no path is given'
+    end
+
+    context 'when path is given as nil' do
+      let(:path) { nil }
+
+      it_behaves_like '#gitiles_url when no path is given'
     end
 
     describe 'url caching' do

@@ -8,16 +8,18 @@ module JayAPI
       # Offers a set of utility methods to work with Gerrit's Gitiles URLs.
       module GitilesHelper
         GITILES_PATH = '/plugins/gitiles/'
-        GITILES_REFSPEC = '/+/%<refspec>s/'
+        GITILES_REFSPEC = '/+/%<refspec>s'
 
         # Returns a Gitiles URL for the given parameters
         # @param [String] repository The URL of the git repository.
-        # @param [String] refspec The name of a branch or the SHA1 of a particular
-        #   commit.
-        # @param [String] path The path to the source file.
-        # @param [Integer, String] line_number The line number
+        # @param [String] refspec The name of a branch or the SHA1 of a
+        #   particular commit.
+        # @param [String, nil] path The path to the source file. If +nil+ is
+        #   given a link to the +refspec+ itself is will be created.
+        # @param [Integer, String, nil] line_number The line number. Ignored
+        #   when +path+ is +nil+.
         # @return [String] The corresponding Gitiles URL.
-        def gitiles_url(repository:, refspec:, path:, line_number: nil)
+        def gitiles_url(repository:, refspec:, path: nil, line_number: nil)
           # NOTE: Here File.join is being used because it takes care of cases in
           # which both strings have slash (/) at their tips and removes the double
           # slash, for example:
@@ -30,13 +32,15 @@ module JayAPI
           #
           #   URI.join('https://www.example.com/hello/world', '/again') => https://www.example.com/again
 
-          base_url = gerrit_urls_cache[repository] ||= translate_gerrit_url(repository)
+          fragments = [
+            gerrit_urls_cache[repository] ||= translate_gerrit_url(repository),
+            format(GITILES_REFSPEC, refspec: refspec)
+          ]
 
-          File.join(
-            base_url,
-            format(GITILES_REFSPEC, refspec: refspec),
-            [path, line_number].compact.join('#') # If there is no line number the # will not appear in the URL
-          )
+          # If there is no line number the # will not appear in the URL
+          fragments << [path, line_number].compact.join('#') if path
+
+          File.join(*fragments)
         end
 
         # Translates a Gerrit repository URL into a Gerrit Gitiles URL for that

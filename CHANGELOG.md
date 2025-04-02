@@ -8,6 +8,9 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+### Added
+- The `Aggregations::Cardinality` class.
+
 ### Changed
 - `GitilesHelper#gitiles_url` can now be called without a `path`. When no path
   is given the method generates a link to the given `refspec` instead.

@@ -4,6 +4,7 @@ require 'forwardable'
 
 require_relative 'aggregations/aggregation'
 require_relative 'aggregations/avg'
+require_relative 'aggregations/cardinality'
 require_relative 'aggregations/filter'
 require_relative 'aggregations/scripted_metric'
 require_relative 'aggregations/sum'

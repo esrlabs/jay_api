@@ -100,6 +100,16 @@ module JayAPI
           add(::JayAPI::Elasticsearch::QueryBuilder::Aggregations::Filter.new(name, &block))
         end
 
+        # Adds a +cardinality+ type aggregation. For more information about the parameters
+        # @see JayAPI::Elasticsearch::QueryBuilder::Aggregations::Cardinality#initialize
+        def cardinality(name, field:)
+          add(
+            ::JayAPI::Elasticsearch::QueryBuilder::Aggregations::Cardinality.new(
+              name, field: field
+            )
+          )
+        end
+
         # Returns a Hash with the correct format for the current list of
         # aggregations. For example:
         #

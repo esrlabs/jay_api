@@ -339,6 +339,36 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::Aggregations do
     end
   end
 
+  describe '#cardinality' do
+    subject(:method_call) do
+      aggregations.cardinality(name, field: field)
+    end
+
+    let(:name) { 'type_count' }
+    let(:field) { 'type' }
+
+    let(:cardinality) do
+      instance_double(
+        JayAPI::Elasticsearch::QueryBuilder::Aggregations::Cardinality,
+        to_h: { 'cardinality' => { '#to_h' => {} } }
+      )
+    end
+
+    before do
+      allow(JayAPI::Elasticsearch::QueryBuilder::Aggregations::Cardinality)
+        .to receive(:new).and_return(cardinality)
+    end
+
+    it 'creates the Cardinality instance with the expected parameters' do
+      expect(JayAPI::Elasticsearch::QueryBuilder::Aggregations::Cardinality).to receive(:new).with(name, field: field)
+      method_call
+    end
+
+    it 'adds the Cardinality instance to the array of aggregations' do
+      expect { method_call }.to change(aggregations, :to_h).to(aggs: { 'cardinality' => { '#to_h' => {} } })
+    end
+  end
+
   describe '#top_hits' do
     subject(:method_call) do
       aggregations.top_hits(name, size: size)

@@ -210,6 +210,37 @@ This would generate the following query:
      }
    }
 
+cardinality
+-----------
+
+This is a single-value aggregation that counts the **approximate** number of
+unique values that a field has in the index.
+
+Detailed information on how to use this type of aggregation can be found on
+`Elasticsearch's documentation on the Cardinality aggregation`_
+
+Code example:
+
+.. code-block:: ruby
+
+   query_builder = JayAPI::Elasticsearch::QueryBuilder.new
+   query_builder.aggregations.sum('type_count', field: 'type')
+
+This would produce the following query:
+
+.. code-block:: json
+
+   {
+     "query": { "match_all": {} },
+     "aggs": {
+       "type_count": {
+         "cardinality": {
+           "field": "type"
+         }
+       }
+     }
+   }
+
 scripted_metric
 ---------------
 
@@ -267,5 +298,6 @@ The code above would produce the following query:
 .. _`Elasticsearch's documentation on the Sum aggregation`: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-sum-aggregation.html
 .. _`Elasticsearch's documentation on the Value Count aggregation`: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-valuecount-aggregation.html
 .. _`Elasticsearch's documentation on the Filter aggregation`: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-filter-aggregation.html
+.. _`Elasticsearch's documentation on the Cardinality aggregation`: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-cardinality-aggregation.html
 .. _`Elasticsearch's documentation on the Scripted Metric aggregation`: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-scripted-metric-aggregation.html
 .. _`Painless`: https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-scripting-painless.html

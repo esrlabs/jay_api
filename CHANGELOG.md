@@ -8,6 +8,8 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+## [27.3.0] - 2025-04-04
+
 ### Added
 - The `Aggregations::Cardinality` class and the `Aggregations#cardinality`
   method. They make it possible to use Elasticsearch's `cardinality`

@@ -9,7 +9,9 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 ## [Unreleased]
 
 ### Added
-- The `Aggregations::Cardinality` class.
+- The `Aggregations::Cardinality` class and the `Aggregations#cardinality`
+  method. They make it possible to use Elasticsearch's `cardinality`
+  aggregations.
 
 ### Changed
 - `GitilesHelper#gitiles_url` can now be called without a `path`. When no path

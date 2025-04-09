@@ -287,4 +287,13 @@ RSpec.describe JayAPI::Elasticsearch::Client do
 
     it_behaves_like 'JayAPI::Elasticsearch::Client#<any_method>'
   end
+
+  describe '#ping' do
+    subject(:method_call) { client.ping }
+
+    it 'forwards the call to the underlying transport client' do
+      expect(transport_client).to receive(:ping)
+      method_call
+    end
+  end
 end

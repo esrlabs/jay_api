@@ -8,6 +8,9 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+### Added
+- The `#ping` method to `Elasticsearch::Client`
+
 ## [27.3.0] - 2025-04-04
 
 ### Added

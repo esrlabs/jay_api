@@ -3,6 +3,7 @@
 require 'elasticsearch/api/namespace/tasks'
 require 'elasticsearch/transport/transport/errors'
 require 'faraday/error'
+require 'forwardable'
 
 require_relative '../abstract/connection'
 
@@ -13,6 +14,8 @@ module JayAPI
     # rescue the error up to a few times and re-try the connection. This way the
     # connection to Elasticsearch will be more robust.
     class Client
+      extend Forwardable
+
       # The errors that, if raised, must cause a retry of the connection.
       ERRORS = [
         ::Elasticsearch::Transport::Transport::ServerError,
@@ -32,6 +35,11 @@ module JayAPI
       ].freeze
 
       attr_reader :transport_client, :logger, :max_attempts, :wait_strategy
+
+      # @return [Boolean] True if there is connectivity to the cluster, false otherwise.
+      # @raise [Transport::Errors::Forbidden] If the user has no permissions to
+      #   ping the cluster.
+      def_delegator :transport_client, :ping
 
       # @param [Elasticsearch::Transport::Client] transport_client The Client
       #   object that will be wrapped.

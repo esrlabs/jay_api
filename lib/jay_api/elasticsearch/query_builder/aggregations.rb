@@ -111,6 +111,16 @@ module JayAPI
           )
         end
 
+        # Adds a +date_histogram+ type aggregation. For more information about the parameters
+        # @see JayAPI::Elasticsearch::QueryBuilder::Aggregations::DateHistogram#initialize
+        def date_histogram(name, field:, calendar_interval:, format: nil)
+          add(
+            ::JayAPI::Elasticsearch::QueryBuilder::Aggregations::DateHistogram.new(
+              name, field: field, calendar_interval: calendar_interval, format: format
+            )
+          )
+        end
+
         # Returns a Hash with the correct format for the current list of
         # aggregations. For example:
         #

@@ -9,7 +9,9 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 ## [Unreleased]
 
 ### Added
-- The `Aggregations::DateHistogram` class.
+- The `Aggregations::DateHistogram` class and the `Aggregations#date_histogram`
+  method. They make it possible to use Elasticsearch's `date_histogram`
+  aggregations.
 
 ## [27.4.0] - 2025-04-10
 

@@ -369,6 +369,70 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::Aggregations do
     end
   end
 
+  describe '#date_histogram' do
+    subject(:method_call) do
+      aggregations.date_histogram(name, **method_params)
+    end
+
+    let(:name) { 'sales_over_time' }
+    let(:field) { 'date' }
+    let(:calendar_interval) { 'month' }
+    let(:method_params) { { field: field, calendar_interval: calendar_interval } }
+
+    let(:date_histogram) do
+      instance_double(
+        JayAPI::Elasticsearch::QueryBuilder::Aggregations::DateHistogram,
+        to_h: { 'date_histogram' => { '#to_h' => {} } }
+      )
+    end
+
+    before do
+      allow(JayAPI::Elasticsearch::QueryBuilder::Aggregations::DateHistogram)
+        .to receive(:new).and_return(date_histogram)
+    end
+
+    shared_examples_for '#date_histogram' do
+      it 'adds the DateHistogram instance to the array of aggregations' do
+        expect { method_call }.to change(aggregations, :to_h).to(aggs: { 'date_histogram' => { '#to_h' => {} } })
+      end
+    end
+
+    shared_examples_for '#date_histogram when no format is given' do
+      it 'creates the Cardinality instance with the expected parameters' do
+        expect(JayAPI::Elasticsearch::QueryBuilder::Aggregations::DateHistogram).to receive(:new)
+          .with(name, field: field, calendar_interval: calendar_interval, format: nil)
+
+        method_call
+      end
+    end
+
+    context 'when no format is given' do
+      it_behaves_like '#date_histogram when no format is given'
+      it_behaves_like '#date_histogram'
+    end
+
+    context 'when format is given as nil' do
+      let(:method_params) { super().merge(format: nil) }
+
+      it_behaves_like '#date_histogram when no format is given'
+      it_behaves_like '#date_histogram'
+    end
+
+    context 'when a format is given' do
+      let(:format) { 'yyyy-MM-dd' }
+      let(:method_params) { super().merge(format: format) }
+
+      it 'creates the Cardinality instance with the expected parameters' do
+        expect(JayAPI::Elasticsearch::QueryBuilder::Aggregations::DateHistogram).to receive(:new)
+          .with(name, field: field, calendar_interval: calendar_interval, format: format)
+
+        method_call
+      end
+
+      it_behaves_like '#date_histogram'
+    end
+  end
+
   describe '#top_hits' do
     subject(:method_call) do
       aggregations.top_hits(name, size: size)

@@ -241,6 +241,42 @@ This would produce the following query:
      }
    }
 
+date_histogram
+--------------
+
+This is a multi-bucket aggregation that automatically aggregates the documents
+into buckets of a fixed time length. As its name indicates it is normally used
+to create date-based histograms, for example, for graphs.
+
+Detailed information on how to use this type of aggregation can be found on
+`Elasticsearch's documentation on the Date Histogram aggregation`_
+
+This aggregation is normally used in combination with sub-aggregations to get
+more meaningful values than just the number of documents.
+
+Code example:
+
+.. code-block:: ruby
+
+   query_builder = JayAPI::Elasticsearch::QueryBuilder.new
+   query_builder.aggregations.date_histogram('sales_over_time', field: 'date', calendar_interval: 'month')
+
+This would produce the following query:
+
+.. code-block:: json
+
+   {
+     "query": { "match_all": {} },
+     "aggs": {
+       "sales_over_time": {
+         "date_histogram": {
+           "field": "date",
+           "calendar_interval": "month"
+         }
+       }
+     }
+   }
+
 scripted_metric
 ---------------
 
@@ -299,5 +335,6 @@ The code above would produce the following query:
 .. _`Elasticsearch's documentation on the Value Count aggregation`: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-valuecount-aggregation.html
 .. _`Elasticsearch's documentation on the Filter aggregation`: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-filter-aggregation.html
 .. _`Elasticsearch's documentation on the Cardinality aggregation`: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-cardinality-aggregation.html
+.. _`Elasticsearch's documentation on the Date Histogram aggregation`: https://www.elastic.co/docs/reference/aggregations/search-aggregations-bucket-datehistogram-aggregation
 .. _`Elasticsearch's documentation on the Scripted Metric aggregation`: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-scripted-metric-aggregation.html
 .. _`Painless`: https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-scripting-painless.html

@@ -66,8 +66,10 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::Aggregations::DateHistogram 
       let(:expected_hash) do
         {
           'sales_over_time' => {
-            field: 'date',
-            calendar_interval: 'month'
+            date_histogram: {
+              field: 'date',
+              calendar_interval: 'month'
+            }
           }
         }
       end
@@ -83,9 +85,11 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::Aggregations::DateHistogram 
       let(:expected_hash) do
         {
           'sales_over_time' => {
-            field: 'date',
-            calendar_interval: 'month',
-            format: 'yyyy-MM-dd'
+            date_histogram: {
+              field: 'date',
+              calendar_interval: 'month',
+              format: 'yyyy-MM-dd'
+            }
           }
         }
       end

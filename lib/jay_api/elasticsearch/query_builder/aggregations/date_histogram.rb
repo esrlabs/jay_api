@@ -40,10 +40,12 @@ module JayAPI
           def to_h(&block)
             super do
               {
-                field: field,
-                calendar_interval: calendar_interval,
-                format: format
-              }.compact
+                date_histogram: {
+                  field: field,
+                  calendar_interval: calendar_interval,
+                  format: format
+                }.compact
+              }
             end
           end
         end

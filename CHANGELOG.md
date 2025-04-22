@@ -8,6 +8,10 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+### Fixed
+- The `Aggregations::TopHits` class cloning. The nested aggregations are now
+  also being cloned as expected.
+
 ## [27.5.0] - 2025-04-22
 
 ### Added

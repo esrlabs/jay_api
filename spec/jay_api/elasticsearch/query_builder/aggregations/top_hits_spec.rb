@@ -27,6 +27,24 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::Aggregations::TopHits do
     it "has the same 'size'" do
       expect(method_call.size).to be(top_hits.size)
     end
+
+    context 'when the original object has nested aggregations' do
+      let(:cloned_aggregations) { instance_double(JayAPI::Elasticsearch::QueryBuilder::Aggregations) }
+
+      let(:aggregations) do
+        instance_double(JayAPI::Elasticsearch::QueryBuilder::Aggregations, clone: cloned_aggregations)
+      end
+
+      before do
+        allow(JayAPI::Elasticsearch::QueryBuilder::Aggregations).to receive(:new).and_return(aggregations)
+        # This initializes a nested aggregation object in the original object, so that it can be cloned.
+        top_hits.aggs
+      end
+
+      it 'has the cloned aggregations' do
+        expect(method_call.aggs).to be(cloned_aggregations)
+      end
+    end
   end
 
   describe '#to_h' do

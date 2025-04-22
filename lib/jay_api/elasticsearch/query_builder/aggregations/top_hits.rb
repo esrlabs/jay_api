@@ -28,7 +28,9 @@ module JayAPI
 
           # @return [self] A copy of the receiver.
           def clone
-            self.class.new(name, size: size)
+            copy = self.class.new(name, size: size)
+            copy.aggregations = aggregations.clone
+            copy
           end
 
           # @return [Hash] The Hash representation of the +Aggregation+.

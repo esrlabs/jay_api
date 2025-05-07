@@ -248,34 +248,34 @@ RSpec.describe JayAPI::Configuration do
         expect(method_call).to eq(expected_hash)
       end
     end
+  end
 
-    describe '#to_yaml' do
-      subject(:method_call) { described_class.from_string(yaml).to_yaml }
+  describe '#to_yaml' do
+    subject(:method_call) { described_class.from_string(yaml).to_yaml }
 
-      let(:yaml) do
-        <<~YAML
-          elasticsearch:
-            index_name: hcpx_tests
-            credentials:
-              username: <%= 'Tom' %>
-              password: <%= '123' * 5 %>
-        YAML
-      end
+    let(:yaml) do
+      <<~YAML
+        elasticsearch:
+          index_name: hcpx_tests
+          credentials:
+            username: <%= 'Tom' %>
+            password: <%= '123' * 5 %>
+      YAML
+    end
 
-      let(:expected_yaml_string) do
-        <<~TEXT
-          ---
-          elasticsearch:
-            index_name: hcpx_tests
-            credentials:
-              username: Tom
-              password: 123123123123123
-        TEXT
-      end
+    let(:expected_yaml_string) do
+      <<~TEXT
+        ---
+        elasticsearch:
+          index_name: hcpx_tests
+          credentials:
+            username: Tom
+            password: 123123123123123
+      TEXT
+    end
 
-      it 'prints the configuration as a parsed YAML string' do
-        expect(method_call).to eq(expected_yaml_string)
-      end
+    it 'prints the configuration as a parsed YAML string' do
+      expect(method_call).to eq(expected_yaml_string)
     end
   end
 end

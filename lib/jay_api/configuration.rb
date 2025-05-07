@@ -89,6 +89,12 @@ module JayAPI
       YAML.dump(deep_to_h.deep_stringify_keys)
     end
 
+    # @return [Array<Object>] An array with the keys (generally the name of the
+    #   attributes) that the configuration object has.
+    def keys
+      @table.keys
+    end
+
     private
 
     # Takes a value and transforms it in accordance to its type.

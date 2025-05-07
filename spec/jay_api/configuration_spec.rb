@@ -106,6 +106,10 @@ RSpec.shared_examples_for 'JayAPI::Configuration.from_string' do
 end
 
 RSpec.describe JayAPI::Configuration do
+  subject(:configuration) { described_class.new(**constructor_params) }
+
+  let(:constructor_params) { {} }
+
   describe '.from_string' do
     subject(:method_call) { described_class.from_string(yaml) }
 
@@ -276,6 +280,46 @@ RSpec.describe JayAPI::Configuration do
 
     it 'prints the configuration as a parsed YAML string' do
       expect(method_call).to eq(expected_yaml_string)
+    end
+  end
+
+  describe '#keys' do
+    subject(:method_call) { configuration.keys }
+
+    context 'when the Configuration object is empty' do
+      it 'returns an empty Array' do
+        expect(method_call).to be_an(Array) & be_empty
+      end
+    end
+
+    context 'when the Configuration object has elements' do
+      let(:constructor_params) do
+        { fruits: %w[Apple Banana Cherry], basket: true, authentication: 'basic', url: 'http://localhost:4400' }
+      end
+
+      it 'returns the expected array of keys' do
+        expect(method_call).to eq(%i[fruits basket authentication url])
+      end
+    end
+
+    context "when the Configuration object has a key called 'keys'" do
+      let(:constructor_params) do
+        { keys: %w[foo bar baz], values: [1, 3, 5] }
+      end
+
+      context 'when the dot-syntax is used' do
+        it 'returns the expected array of keys' do
+          expect(method_call).to eq(%i[keys values])
+        end
+      end
+
+      context 'when the brackets are used' do
+        subject(:method_call) { configuration[:keys] }
+
+        it 'returns the expected value' do
+          expect(method_call).to eq(%w[foo bar baz])
+        end
+      end
     end
   end
 end

@@ -8,6 +8,14 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+### Added
+- ! The `#keys` method to the `Configuration` class. The method returns the
+  array of keys that the `Configuration` object has.
+
+  Note that the addition of this method means that it is no longer possible to
+  access the value of an attribute called `keys` via the dot syntax, however,
+  it is still possible to access its value using the brackets: `[]`
+
 ## [27.5.1] - 2025-04-24
 
 ### Fixed

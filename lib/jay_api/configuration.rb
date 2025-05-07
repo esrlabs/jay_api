@@ -104,7 +104,7 @@ module JayAPI
       when self.class
         value.deep_to_h
       when Hash
-        value.to_h { |hash_key, hash_value| [hash_key, value_for_h(hash_value)] }
+        value.transform_values { |hash_value| value_for_h(hash_value) }
       when Array
         value.map { |element| value_for_h(element) }
       else

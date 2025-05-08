@@ -8,6 +8,8 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+## [28.0.0] - 2025-05-09
+
 ### Added
 - ! The `#keys` method to the `Configuration` class. The method returns the
   array of keys that the `Configuration` object has.

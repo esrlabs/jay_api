@@ -6,6 +6,7 @@ require 'faraday/error'
 require 'forwardable'
 
 require_relative '../abstract/connection'
+require_relative 'stats'
 
 module JayAPI
   module Elasticsearch
@@ -89,6 +90,12 @@ module JayAPI
       #   the return value.
       def task_by_id(**args)
         retry_request { transport_client.tasks.get(**args) }
+      end
+
+      # @return [JayAPI::Elasticsearch::Stats] An instance of the +Stats+ class,
+      #   which gives the caller access to Elasticsearch's Statistics API.
+      def stats
+        @stats ||= ::JayAPI::Elasticsearch::Stats.new(transport_client)
       end
 
       private

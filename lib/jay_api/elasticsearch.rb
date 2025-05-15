@@ -10,6 +10,7 @@ require_relative 'elasticsearch/query_builder'
 require_relative 'elasticsearch/query_results'
 require_relative 'elasticsearch/response'
 require_relative 'elasticsearch/search_after_results'
+require_relative 'elasticsearch/stats'
 require_relative 'elasticsearch/tasks'
 require_relative 'elasticsearch/time'
 

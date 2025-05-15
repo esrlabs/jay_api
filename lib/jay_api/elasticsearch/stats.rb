@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'stats/index'
+require_relative 'stats/indices'
 
 module JayAPI
   module Elasticsearch

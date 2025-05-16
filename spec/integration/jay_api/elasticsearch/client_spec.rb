@@ -296,4 +296,27 @@ RSpec.describe JayAPI::Elasticsearch::Client do
       method_call
     end
   end
+
+  describe '#stats' do
+    subject(:method_call) { client.stats }
+
+    let(:stats) do
+      instance_double(
+        JayAPI::Elasticsearch::Stats
+      )
+    end
+
+    before do
+      allow(JayAPI::Elasticsearch::Stats).to receive(:new).and_return(stats)
+    end
+
+    it 'initializes an instance of JayAPI::Elasticsearch::Stats and passes the transport client to it' do
+      expect(JayAPI::Elasticsearch::Stats).to receive(:new).with(transport_client)
+      method_call
+    end
+
+    it 'returns the JayAPI::Elasticsearch::Stats instance' do
+      expect(method_call).to be(stats)
+    end
+  end
 end

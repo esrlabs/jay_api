@@ -8,6 +8,8 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+## [28.1.0] - 2025-05-19
+
 ### Added
 - The `#stats` method to the `Elasticsearch::Client` class. The method returns
   an object that can be used to retrieve statistics about the Cluster. For the

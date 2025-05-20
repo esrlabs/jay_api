@@ -21,16 +21,16 @@ module JayAPI
       #   to the Statistics API endpoint fails.
       def indices
         # DO NOT MEMOIZE! Leave it to the caller.
-        ::JayAPI::Elasticsearch::Stats::Indices.new(response['indices'])
+        ::JayAPI::Elasticsearch::Stats::Indices.new(indices_stats['indices'])
       end
 
       private
 
-      # @return [Hash] The Hash with the statistics returned by the
-      #   Elasticsearch cluster.
+      # @return [Hash] The Hash with the index-related statistics returned by
+      #   the Elasticsearch cluster.
       # @raise [Elasticsearch::Transport::Transport::ServerError] If the
       #   request fails.
-      def response
+      def indices_stats
         # DO NOT MEMOIZE! Leave it to the caller.
         transport_client.indices.stats
       end

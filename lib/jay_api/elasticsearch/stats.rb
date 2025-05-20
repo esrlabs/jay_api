@@ -2,6 +2,8 @@
 
 require_relative 'stats/index'
 require_relative 'stats/indices'
+require_relative 'stats/node'
+require_relative 'stats/nodes'
 
 module JayAPI
   module Elasticsearch
@@ -24,6 +26,15 @@ module JayAPI
         ::JayAPI::Elasticsearch::Stats::Indices.new(indices_stats['indices'])
       end
 
+      # @return [JayAPI::Elasticsearch::Stats::Nodes] Information about the
+      #   nodes that make up the Elasticsearch cluster.
+      # @raise [Elasticsearch::Transport::Transport::ServerError] If the request
+      #   to the Statistics API endpoint fails.
+      def nodes
+        # DO NOT MEMOIZE! Leave it to the caller.
+        ::JayAPI::Elasticsearch::Stats::Nodes.new(nodes_stats['nodes'])
+      end
+
       private
 
       # @return [Hash] The Hash with the index-related statistics returned by
@@ -33,6 +44,15 @@ module JayAPI
       def indices_stats
         # DO NOT MEMOIZE! Leave it to the caller.
         transport_client.indices.stats
+      end
+
+      # @return [Hash] The Hash with the node-related statistics returned by the
+      #   Elasticsearch cluster.
+      # @raise [Elasticsearch::Transport::Transport::ServerError] If the
+      #   request fails.
+      def nodes_stats
+        # DO NOT MEMOIZE! Leave it to the caller.
+        transport_client.nodes.stats
       end
     end
   end

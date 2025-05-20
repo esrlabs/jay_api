@@ -45,3 +45,35 @@ The ``Stats::Index`` objects have the following methods:
 
 ``#name``
   The name of the index.
+
+#nodes
+------
+
+This method gives you access to node-related statistics. The method returns an
+instance of the ``Stats::Nodes`` class, which in turn allows you to access
+information on each of the nodes that make up the Elasticsearch cluster through
+the following methods:
+
+#size
++++++
+
+This method returns the number of nodes in the cluster.
+
+#all
+++++
+
+This method returns an ``Enumerator`` whose elements are instances of the
+``Stats::Node`` class, one for each of the nodes in the cluster.
+
+The ``Stats::Node`` class has the following methods:
+
+``#name``
+  The name of the node. (Usually a random string of numbers and letters)
+
+``#storage``
+  The method returns an instance of ``Stats::Node::Storage``, a class which
+  offers information about the storage of the node. ``Storage`` objects can be
+  added together to calculate the total storage of the cluster.
+
+  The ``Storage`` classes provides three methods that return number of bytes:
+  ``#total``, ``#free`` and ``#available``.

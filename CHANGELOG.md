@@ -8,6 +8,8 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+## [28.2.0] - 2025-05-30
+
 ### Added
 - The `#nodes` method to the `Elasticsearch::Stats` class. This method gives the
   user access to the node-related statistics of the Elasticsearch cluster.

@@ -8,6 +8,10 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+### Added
+- The `Aggregations::Composite` class and the `Aggregations#composite` method.
+  They make it possible to use Elasticsearch's `compsiite` aggregations.
+
 ## [28.2.0] - 2025-05-30
 
 ### Added

@@ -5,6 +5,7 @@ require 'forwardable'
 require_relative 'aggregations/aggregation'
 require_relative 'aggregations/avg'
 require_relative 'aggregations/cardinality'
+require_relative 'aggregations/composite'
 require_relative 'aggregations/date_histogram'
 require_relative 'aggregations/filter'
 require_relative 'aggregations/scripted_metric'
@@ -117,6 +118,16 @@ module JayAPI
           add(
             ::JayAPI::Elasticsearch::QueryBuilder::Aggregations::DateHistogram.new(
               name, field: field, calendar_interval: calendar_interval, format: format
+            )
+          )
+        end
+
+        # Adds a +composite+ aggregation. For more information about the parameters:
+        # @see JayAPI::Elasticsearch::QueryBuilder::Aggregations::Composite#initialize
+        def composite(name, size: nil, &block)
+          add(
+            ::JayAPI::Elasticsearch::QueryBuilder::Aggregations::Composite.new(
+              name, size: size, &block
             )
           )
         end

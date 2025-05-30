@@ -329,6 +329,54 @@ The code above would produce the following query:
    ``QueryBuilder::Script`` objects here. Their use will produce unintended
    results.
 
+composite
+---------
+
+This is a multi-bucket aggregation that aggregates the set of documents using a
+compound value made out of all the existing combinations of values from the
+specified sources. Currently Jay API only allows one type of source: ``terms``.
+
+Using the ``terms`` source it is possible to create a bucket for each existing
+combination of values from a set of fields.
+
+Detailed information on how to use this type of aggregation can be found on
+`Elasticsearch's documentation on the Composite aggregation`_
+
+Code example:
+
+.. code-block:: ruby
+
+   query_builder = JayAPI::Elasticsearch::QueryBuilder.new
+   query_builder.aggregations.composite('products_by_brand') do |sources|
+     sources.terms('product', field: 'product.name')
+     sources.terms('brand', field: 'brand.name')
+   end
+
+This would generate the following query:
+
+.. code-block:: json
+
+   {
+     "query": {
+       "match_all": {}
+     },
+     "aggs": {
+       "products_by_brand": {
+         "composite": {
+           "sources": [
+             { "product": { "terms": { "field": "product.name" } } },
+             { "brand": { "terms": { "field": "brand.name" } } }
+           ]
+         }
+       }
+     }
+   }
+
+This will create one bucket for each existing combination of ``product.name``
+and ``brand.name`` in the index. The buckets will only say how many documents
+(``doc_count``) exist for each combination. Nested aggregations could be added
+to get other information out of the documents in each bucket.
+
 .. _`Elasticsearch's documentation on the Terms aggregation`: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html
 .. _`Elasticsearch's documentation on the Avg aggregation`: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-avg-aggregation.html
 .. _`Elasticsearch's documentation on the Sum aggregation`: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-sum-aggregation.html
@@ -337,4 +385,5 @@ The code above would produce the following query:
 .. _`Elasticsearch's documentation on the Cardinality aggregation`: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-cardinality-aggregation.html
 .. _`Elasticsearch's documentation on the Date Histogram aggregation`: https://www.elastic.co/docs/reference/aggregations/search-aggregations-bucket-datehistogram-aggregation
 .. _`Elasticsearch's documentation on the Scripted Metric aggregation`: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-scripted-metric-aggregation.html
+.. _`Elasticsearch's documentation on the Composite aggregation`: https://www.elastic.co/docs/reference/aggregations/search-aggregations-bucket-composite-aggregation
 .. _`Painless`: https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-scripting-painless.html

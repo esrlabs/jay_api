@@ -8,6 +8,9 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+### Added
+- The `Aggregations::Composite` class.
+
 ## [28.2.0] - 2025-05-30
 
 ### Added

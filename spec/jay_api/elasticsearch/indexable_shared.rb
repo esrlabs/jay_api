@@ -16,7 +16,8 @@ RSpec.shared_context 'with mocked objects for Elasticsearch::Indexable' do
     double(
       Logging::Logger,
       info: true,
-      error: true
+      error: true,
+      warn: true
     )
   end
   # rubocop:enable RSpec/VerifiedDoubles
@@ -46,104 +47,9 @@ RSpec.shared_examples_for 'Indexable#initialize' do
   end
 end
 
-RSpec.shared_examples_for 'Indexable#push' do
-  let(:constructor_params) do
-    super().merge(batch_size: 10)
-  end
-
-  let(:expected_data) do
-    {
-      body: [
-        {
-          index: {
-            _index: index_name,
-            _type: 'nested',
-            data: data
-          }
-        }
-      ] * 10
-    }
-  end
-
-  context 'when the amount of data is smaller than the batch size' do
-    it 'enqueues the data but does not push it to Elasticsearch' do
-      expect(client).not_to receive(:bulk)
-      5.times { described_method.call }
-    end
-  end
-
-  context 'when the amount of data matches the batch size' do
-    it 'puts the data with the correct structure in the queue' do
-      expect(client).to receive(:bulk).with(expected_data)
-      10.times { described_method.call }
-    end
-  end
-
-  context 'when the amount of data goes over the batch size' do
-    it 'pushes the data to Elasticsearch every time the batch size is hit' do
-      expect(client).to receive(:bulk).with(expected_data).exactly(3).times
-      30.times { described_method.call }
-    end
-  end
-end
-
 RSpec.shared_examples_for 'Indexable#index' do
-  before do
-    allow(client).to receive(:index).and_return(successful_response)
-  end
-
-  shared_examples_for '#index when no type is specified' do
-    let(:expected_data) do
-      {
-        index: index_name,
-        type: 'nested',
-        body: data
-      }
-    end
-
-    it 'sends the given data to Elasticsearch right away (with the "nested" type)' do
-      expect(client).to receive(:index).with(expected_data)
-      method_call
-    end
-
-    it 'returns the expected Hash' do
-      expect(method_call).to eq(successful_response)
-    end
-  end
-
-  context 'when no type is specified' do
-    it_behaves_like '#index when no type is specified'
-  end
-
-  context 'when type is specified as "nested"' do
-    let(:method_params) { { type: 'nested' } }
-
-    it_behaves_like '#index when no type is specified'
-  end
-
-  context 'when type is set to nil' do
-    let(:method_params) { { type: nil } }
-
-    let(:expected_data) do
-      {
-        index: index_name,
-        type: nil,
-        body: data
-      }
-    end
-
-    it "sends the given data to Elasticsearch right away (with 'type' set to nil)" do
-      expect(client).to receive(:index).with(expected_data)
-      method_call
-    end
-
-    it 'returns the expected Hash' do
-      expect(method_call).to eq(successful_response)
-    end
-  end
-
   context 'when type is set to an invalid value' do
-    let(:method_params) { { type: 'flatten' }  }
+    let(:method_params) { { type: 'flatten' } }
 
     it 'raises an ArgumentError' do
       expect { method_call }.to raise_error(ArgumentError, "Unsupported type: 'flatten'")
@@ -152,45 +58,9 @@ RSpec.shared_examples_for 'Indexable#index' do
 end
 
 RSpec.shared_examples_for 'Indexable#queue_size' do
-  let(:constructor_params) do
-    super().merge(batch_size: 15)
-  end
-
   context 'with no items have been pushed to the queue' do
     it 'returns 0' do
       expect(method_call).to eq(0)
-    end
-  end
-
-  context 'when a single item is pushed to the index' do
-    it 'increases accordingly' do
-      expect { indexable.push(data) }.to change(indexable, :queue_size).by(1)
-    end
-  end
-
-  context "when less than 'batch_size' items are pushed to the queue" do
-    before do
-      10.times { indexable.push(data) }
-    end
-
-    it 'returns the correct number of items' do
-      expect(method_call).to eq(10)
-    end
-  end
-
-  context "when 'batch_size' items are pushed to the index" do
-    it 'goes back down to zero' do
-      expect(client).to receive(:bulk).once # Checks that the items are pushed when the queue gets full.
-      15.times { indexable.push(data) }
-      expect(method_call).to be(0)
-    end
-  end
-
-  context "when more than 'batch_size' items are pushed to the index" do
-    it 'returns the expected number of items' do
-      expect(client).to receive(:bulk).once # Checks that the items are pushed when the queue gets full.
-      20.times { indexable.push(data) }
-      expect(method_call).to be(5)
     end
   end
 end

@@ -8,6 +8,10 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+### Added
+- The `Elasticsearch::Indexes` class. A class which allows multiple indexes to
+  be used (fed or queried) at the same time.
+
 ## [28.3.0] - 2025-06-05
 
 ### Added

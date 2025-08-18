@@ -19,8 +19,8 @@ module JayAPI
 
       def_delegators :index, :index_name
 
-      # @param [JayAPI::Elasticsearch::Index] index The elasticsearch index on
-      #   which to execute asynchronous operations
+      # @param [JayAPI::Elasticsearch::Indexable] index The elasticsearch
+      #   index or indexes on which to execute asynchronous operations
       def initialize(index)
         @index = index
       end

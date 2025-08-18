@@ -21,8 +21,8 @@ module JayAPI
       def_delegators :response, :hits, :total, :size, :count, :first, :last, :any?, :empty?, :aggregations
 
       # Creates a new instance of the class.
-      # @param [JayAPI::Elasticsearch::Index] index The Elasticsearch
-      #   index used to perform the query.
+      # @param [JayAPI::Elasticsearch::Indexable] index The Elasticsearch
+      #   index or indexes over which the query should be performed.
       # @param [Hash] query The query that produced the results.
       # @param [JayAPI::Elasticsearch::Results] response An object containing Docs retrieved from Elasticsearch.
       # @param [JayAPI::Elasticsearch::BatchCounter] batch_counter An object keeping track of the current batch.

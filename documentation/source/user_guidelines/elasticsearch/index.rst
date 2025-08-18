@@ -51,7 +51,7 @@ which define connection re-try behaviour:
   ``wait_strategy``.
 
 #push
-*****
+-----
 
 The ``push`` method stores a document in the ``Index``'s buffer. If the buffer
 reaches the maximum number of records the buffer will be flushed automatically.
@@ -76,7 +76,7 @@ Example:
   index.flush # Do not forget to flush the index at the end.
 
 #index
-******
+------
 
 ``index`` pushes a document directly to the Elasticsearch cluster without adding
 it to the buffer first. So you don't need to call ``flush``:
@@ -98,7 +98,7 @@ Example:
 .. _`Index#search`:
 
 #search
-*******
+-------
 
 The ``search`` method allows you to search the Elasticsearch index for documents
 matching the provided query. This method takes two arguments:
@@ -134,7 +134,7 @@ Example:
   )
 
 #flush
-******
+------
 
 Flushes the current buffer to Elasticsearch, pushing all the documents currently
 stored in the queue (if there are any).
@@ -150,7 +150,7 @@ Example:
   index.flush
 
 #queue_size
-***********
+-----------
 
 Returns the current number of documents currently waiting to be flushed to
 Elasticsearch:
@@ -162,7 +162,7 @@ Example
   index.queue_size # => 16
 
 #delete_by_query
-****************
+----------------
 
 This method allows you to remove the documents that match the given query from
 the index. The method has a single parameter:

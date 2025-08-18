@@ -1,62 +1,22 @@
-Index
-=====
+Indexable
+=========
 
-This class represents an Index inside an Elasticsearch cluster. It provides a
-set of methods that allow the user to query the index and add new data.
+The following methods are common to the following classes, which include the
+``Indexable`` mixin:
 
-The class also keeps a buffer of documents waiting to be pushed to the index,
-the user can add documents to the buffer and the class will push them as soon as
-the buffer is full. The user can also force the push of the records by flushing
-the buffer.
+.. toctree::
+   :maxdepth: 2
+   :glob:
 
-To initialize an index:
-
-.. code-block:: ruby
-
-  client = JayAPI::Elasticsearch::ClientFactory.new(
-    cluster_url: 'https://my-cluster.elastic.io'
-  ).create(max_attempts: 3, wait_strategy: :constant, wait_interval: 2)
-
-  index = JayAPI::Elasticsearch::Index.new(
-    client: client,
-    index_name: 'my_index'
-  )
-
-The ``cluster_url`` and the ``index_name`` are the only required parameters. If
-the cluster is configured to use Elasticsearch's default port (``9200``) and has
-no authentication in place this is all you need. However in most cases that
-would not be enough, so you can also provide the following extra parameters:
-
-* ``port``: The port number where the Elasticsearch cluster is listening for
-  connections.
-* ``username``: The username to use when authentication against the cluster.
-* ``password``: The user's password
-* ``batch_size``: The amount of documents the ``Index`` will store in its buffer
-  before triggering an automatic flush.
-* ``logger``: If you want the messages to be logged to a particular logger. If
-  you don't pass a logger then the class will create one.
-
-The ``create`` method, that returns the client object, also takes optional arguments,
-which define connection re-try behaviour:
-
-* ``max_attempts``: Sets the maximum number of reconnection attempts in
-  response to server errors.
-* ``wait_strategy``: Determines the strategy for wait intervals between
-  reconnection attempts. Options are:
-
-  * ``:constant`` - Maintains a consistent wait time specified by ``wait_time``.
-  * ``:geometric`` - Increases the wait time geometrically based on ``wait_time``.
-
-* ``wait_time``: Specifies the base wait time (in seconds) for the chosen
-  ``wait_strategy``.
+   indexable/*
 
 #push
 -----
 
-The ``push`` method stores a document in the ``Index``'s buffer. If the buffer
+The ``push`` method stores a document in the ``Indexable``'s buffer. If the buffer
 reaches the maximum number of records the buffer will be flushed automatically.
 
-``push`` takes a single ``Hash``, the document you want to send to the index.
+``push`` takes a single ``Hash``, the document you want to send to the index(es).
 
 .. warning::
 
@@ -70,10 +30,10 @@ Example:
 
   documents.each do |document|
     # do something with your document, then push it
-    index.push(document)
+    indexable.push(document)
   end
 
-  index.flush # Do not forget to flush the index at the end.
+  indexable.flush # Do not forget to flush the indexable at the end.
 
 #index
 ------
@@ -81,27 +41,27 @@ Example:
 ``index`` pushes a document directly to the Elasticsearch cluster without adding
 it to the buffer first. So you don't need to call ``flush``:
 
-``index`` takes a single ``Hash``, the document you want to send to the index.
+``index`` takes a single ``Hash``, the document you want to send to the index(es).
 
 Example:
 
 .. code-block:: ruby
 
-  index.index(my_document)
+  indexable.index(my_document)
 
 .. note::
 
-  Pushing documents one at a time is very inefficient because the ``Index``
+  Pushing documents one at a time is very inefficient because the ``Indexable``
   needs to perform an HTTP Request for each one. If you want to send many
   documents use ``push`` instead.
 
-.. _`Index#search`:
+.. _`Indexable#search`:
 
 #search
 -------
 
-The ``search`` method allows you to search the Elasticsearch index for documents
-matching the provided query. This method takes two arguments:
+The ``search`` method allows you to search the Elasticsearch index(es) for
+documents matching the provided query. This method takes two arguments:
 
 * ``query`` A ``Hash`` with the query you want to execute, this Hash will be
   converted to JSON before being sent to Elasticsearch. It must follow
@@ -121,7 +81,7 @@ Example:
 
 .. code-block:: ruby
 
-  index.search(
+  indexable.search(
     query: {
       match_all: { }
     },
@@ -144,10 +104,10 @@ Example:
 .. code-block:: ruby
 
   documents.each do |document|
-    index.push(document)
+    indexable.push(document)
   end
 
-  index.flush
+  indexable.flush
 
 #queue_size
 -----------
@@ -159,17 +119,17 @@ Example
 
 .. code-block:: ruby
 
-  index.queue_size # => 16
+  indexable.queue_size # => 16
 
 #delete_by_query
 ----------------
 
 This method allows you to remove the documents that match the given query from
-the index. The method has a single parameter:
+the index(es). The method has a single parameter:
 
 * ``query``: A ``Hash`` with the query you want to use to match documents for
   deletion. For more information on this parameter or how to create queries see
-  the :ref:`Index#search` method documentation.
+  the :ref:`Indexable#search` method documentation.
 
 On success the method will return a ``Hash`` with information about the executed
 command, for example:

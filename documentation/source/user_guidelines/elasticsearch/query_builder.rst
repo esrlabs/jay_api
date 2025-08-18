@@ -76,7 +76,7 @@ be returned if there aren't enough documents matching the query).
 
 By using ``from`` and ``size`` you can only scroll through a maximum of 10,000
 documents. If you have more than that in your index, you'll have to use
-:ref:`Index#search` method with ``type: :search_after``.
+:ref:`Indexable#search` method with ``type: :search_after``.
 
 #sort
 -----
@@ -171,7 +171,7 @@ And the use of Hashes to include or exclude parts of the document, for example:
 
 Once you have added all the clauses you want on your queries you can call
 ``to_h`` or ``to_query`` to get the corresponding Hash. The class converts the
-query to a Hash representation that can then be passed to :ref:`Index#search` to
+query to a Hash representation that can then be passed to :ref:`Indexable#search` to
 perform the actual search.
 
 .. note::

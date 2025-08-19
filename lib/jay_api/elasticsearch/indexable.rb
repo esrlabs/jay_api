@@ -29,17 +29,17 @@ module JayAPI
 
       # :reek:ControlParameter (want to avoid the creating of the logger on method definition)
       # @param [JayAPI::Elasticsearch::Client] client The Elasticsearch Client object.
-      # @param [String] index_name The name of the Elasticsearch index.
+      # @param [Array<String>] index_names The names of the Elasticsearch indexes.
       # @param [Integer] batch_size The size of the batch. When this many items
       #   are pushed into the index they are flushed to the Elasticsearch
       #   instance.
       # @param [Logging::Logger, nil] logger The logger object to use, if
       #   none is given a new one will be created.
-      def initialize(client:, index_name:, batch_size: 100, logger: nil)
+      def initialize(client:, index_names:, batch_size: 100, logger: nil)
         @logger = logger || Logging.logger[self]
 
         @client = client
-        @index_name = index_name
+        @index_names = index_names
         @batch_size = batch_size
 
         @batch = []
@@ -49,7 +49,10 @@ module JayAPI
       # Elasticsearch instance, only puts it into the send queue).
       # @param [Hash] data The data to be pushed to the index.
       def push(data)
-        batch << { index: { _index: index_name, _type: 'nested', data: data } }
+        index_names.each do |index_name|
+          batch << { index: { _index: index_name, _type: 'nested', data: data } }
+        end
+
         flush! if batch.size >= batch_size
       end
 
@@ -58,8 +61,8 @@ module JayAPI
       # @param [String, nil] type The type of the document. When set to +nil+
       #   the decision is left to Elasticsearch's API. Which will normally
       #   default to +_doc+.
-      # @return [Hash] A hash with information about the created document. An
-      #   example of such Hash is:
+      # @return [Array<Hash>] An array with hashes containing information about
+      #   the created documents. An example of such Hashes is:
       #
       #  {
       #    "_index" => "xyz01_unit_test",
@@ -77,7 +80,7 @@ module JayAPI
       def index(data, type: DEFAULT_DOC_TYPE)
         raise ArgumentError, "Unsupported type: '#{type}'" unless SUPPORTED_TYPES.include?(type)
 
-        client.index index: index_name, type: type, body: data
+        index_names.map { |index_name| client.index index: index_name, type: type, body: data }
       end
 
       # Performs a query on the index.
@@ -92,7 +95,7 @@ module JayAPI
       #   query fails.
       def search(query, batch_counter: nil, type: nil)
         begin
-          response = Response.new(client.search(index: index_name, body: query))
+          response = Response.new(client.search(index: index_names, body: query))
         rescue ::Elasticsearch::Transport::Transport::Errors::BadRequest
           logger.error "The 'search' query is invalid: #{JSON.pretty_generate(query)}"
           raise
@@ -148,7 +151,7 @@ module JayAPI
       # @raise [Elasticsearch::Transport::Transport::ServerError] If the
       #   query fails.
       def delete_by_query(query, slices: nil, wait_for_completion: true)
-        request_params = { index: index_name, body: query }.tap do |params|
+        request_params = { index: index_names, body: query }.tap do |params|
           params.merge!(slices: slices) if slices
           params.merge!(wait_for_completion: false) unless wait_for_completion
         end
@@ -174,13 +177,7 @@ module JayAPI
 
       private
 
-      attr_reader :logger, :batch
-
-      # @raise [NotImplementedError] Is always raised, class including the
-      #   module **must** implement this method.
-      def index_name
-        raise NotImplementedError, "Please implement the method #{__method__} in #{self.class}"
-      end
+      attr_reader :index_names, :logger, :batch
 
       # Scans the Elasticsearch response in search for the first item that has
       # an erroneous state and raises an error including the error details.

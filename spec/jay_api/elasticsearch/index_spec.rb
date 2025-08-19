@@ -155,7 +155,7 @@ RSpec.describe JayAPI::Elasticsearch::Index do
 
     let(:expected_query) do
       {
-        index: index_name,
+        index: [index_name],
         body: query
       }
     end
@@ -184,6 +184,8 @@ RSpec.describe JayAPI::Elasticsearch::Index do
         }
       }
     end
+
+    let(:index_names) { [index_name] }
 
     it_behaves_like 'Indexable#delete_by_query'
   end

@@ -369,7 +369,7 @@ RSpec.shared_examples_for 'Indexable#delete_by_query' do
 
   it 'relays the command to the Elasticsearch client' do
     expect(client).to receive(:delete_by_query).with(
-      index: index_name, body: query
+      index: index_names, body: query
     )
 
     method_call
@@ -380,7 +380,7 @@ RSpec.shared_examples_for 'Indexable#delete_by_query' do
 
     it 'relays the command to the Elasticsearch client' do
       expect(client).to receive(:delete_by_query).with(
-        index: index_name, body: query, slices: 5
+        index: index_names, body: query, slices: 5
       )
 
       method_call
@@ -392,7 +392,7 @@ RSpec.shared_examples_for 'Indexable#delete_by_query' do
 
     it 'relays the command to the Elasticsearch client' do
       expect(client).to receive(:delete_by_query).with(
-        index: index_name, body: query, wait_for_completion: false
+        index: index_names, body: query, wait_for_completion: false
       )
 
       method_call
@@ -404,7 +404,7 @@ RSpec.shared_examples_for 'Indexable#delete_by_query' do
 
     it 'relays the command to the Elasticsearch client' do
       expect(client).to receive(:delete_by_query).with(
-        index: index_name, body: query, slices: 5, wait_for_completion: false
+        index: index_names, body: query, slices: 5, wait_for_completion: false
       )
 
       method_call

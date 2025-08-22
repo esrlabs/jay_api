@@ -8,6 +8,9 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+### Changed
+- ! Increased the minimum Ruby version requirement to 3.1.0
+
 ## [28.4.0] - 2025-08-26
 
 ### Added

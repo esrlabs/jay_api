@@ -5,8 +5,8 @@ while abstracting internal implementations.
 
 ## Requirements
 
-* Ruby >= 2.7.0
-* Bundler ~> 2, < 2.5.0
+* Ruby >= 3.1.0
+* Bundler ~> 2
 
 ## Setup
 

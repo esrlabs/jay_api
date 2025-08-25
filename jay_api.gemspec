@@ -32,7 +32,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'activesupport', '~> 7'
   spec.add_runtime_dependency 'concurrent-ruby', '~> 1'
   spec.add_runtime_dependency 'elasticsearch', '~> 7', '<= 7.9.0'
-  spec.add_runtime_dependency 'git', '~> 1', '>= 1.8.0-1'
+  spec.add_runtime_dependency 'git', '~> 3'
   spec.add_runtime_dependency 'logging', '~> 2'
   spec.add_runtime_dependency 'rspec', '~> 3.0'
 end

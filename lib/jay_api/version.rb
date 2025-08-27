@@ -2,5 +2,5 @@
 
 module JayAPI
   # JayAPI gem's semantic version
-  VERSION = '28.4.0'
+  VERSION = '29.0.0'
 end

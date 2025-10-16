@@ -64,13 +64,22 @@ module JayAPI
       #   query_builder.sort(age: 'desc')
       #
       # Both will produce the same +sort+ clause.
+      #
+      # It is also possible to pass a Hash with advanced sorting options, for
+      # example:
+      #
+      #   query_builder.sort(price: { order: :desc, missing: :_last })
+      #
       # @param [Hash] sort A Hash whose keys are the name of the fields
-      #   and the keys are the direction of the sorting, either +asc+ or
-      #   +desc+.
+      #   and whose values are either the direction of the sorting (+:asc+ or
+      #   +:desc+) or a Hash with advanced sort options.
+      # @see https://www.elastic.co/docs/reference/elasticsearch/rest-apis/sort-search-results
       # @return [QueryBuilder] itself so that other methods can be chained.
       def sort(sort)
         check_argument(sort, 'sort', Hash)
-        @sort.merge!(sort)
+        @sort.merge!(
+          sort.transform_values { |value| value.is_a?(Hash) ? value : { order: value } }
+        )
         self
       end
 
@@ -184,11 +193,7 @@ module JayAPI
         query_hash[:_source] = @source unless @source.nil?
         query_hash[:query] = query.to_h
 
-        if @sort.any?
-          query_hash[:sort] = @sort.map do |field, direction|
-            { field => { order: direction } }
-          end
-        end
+        query_hash[:sort] = @sort.map { |field, ordering| { field => ordering } } if @sort.any?
 
         if @collapse
           query_hash[:collapse] = {

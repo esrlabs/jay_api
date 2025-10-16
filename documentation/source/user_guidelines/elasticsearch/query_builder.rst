@@ -101,6 +101,17 @@ aggregated into a single ``sort`` clause, for example:
   query_builder.sort(name: 'asc')
   query_builder.sort(age: 'desc')
 
+For special cases or sorting needs it is also possible to pass a ``Hash`` with
+advanced sorting options, for example:
+
+.. code-block:: ruby
+
+   query_builder.sort(price: { order: :desc, missing: :_last })
+
+For more information about what options can be passed in this ``Hash``, their
+possible values and meanings, please see `Sort search results`_ from
+Elasticsearch's documentation.
+
 #collapse
 ---------
 
@@ -497,3 +508,4 @@ Example:
 .. _`Range Query`: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-range-query.html
 .. _`Terms Query`: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-terms-query.html
 .. _`Regexp Query`: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-regexp-query.html
+.. _`Sort search results`: https://www.elastic.co/docs/reference/elasticsearch/rest-apis/sort-search-results

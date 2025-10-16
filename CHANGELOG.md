@@ -8,6 +8,11 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+### Added
+- `QueryBuilder#sort` can now receive either the direction of the sorting (`asc`
+  or `desc`) or a `Hash` with advanced sorting options. These are relayed
+  directly to Elasticsearch. 
+
 ## [29.0.0] - 2025-08-28
 
 ### Changed

@@ -98,6 +98,34 @@ RSpec.shared_examples_for 'JayAPI::Elasticsearch::QueryBuilder#to_query' do
         it_behaves_like '#to_query with multiple sort fields'
       end
     end
+
+    context 'when sorting options have been given' do
+      before { query_builder.sort(price: { order: :desc, missing: '_last' }) }
+
+      it 'adds the :sort key with the expected content' do
+        expect(method_call).to include(sort: [{ price: { order: :desc, missing: '_last' } }])
+      end
+    end
+
+    context 'when multiple fields with sort options have been given' do
+      before do
+        query_builder.sort(price: { order: :desc, missing: '_last' })
+        query_builder.sort(updated_at: { order: :desc, unmapped_type: 'date' })
+      end
+
+      let(:expected_sort_clause) do
+        {
+          sort: [
+            { price: { order: :desc, missing: '_last' } },
+            { updated_at: { order: :desc, unmapped_type: 'date' } }
+          ]
+        }
+      end
+
+      it 'adds the :sort key with the expected content' do
+        expect(method_call).to include(expected_sort_clause)
+      end
+    end
   end
 
   context 'when no collapse clause has been given' do

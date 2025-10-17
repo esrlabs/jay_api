@@ -271,6 +271,33 @@ turn:
     query.wildcard(field: 'company', value: '*Inc.')
   end
 
+Boolean clauses can also be nested:
+
+.. code-block:: ruby
+
+   query_builder = QueryBuilder.new
+   query_builder.query.bool.must do |must_clause|
+     must_clause.wildcard(field: 'user.id', value: 'ki*y')
+     must_clause.query_string(fields: 'city', query: '(new york city) OR (big apple)')
+     must_clause.bool.should do |should_clause|
+       should_clause.range(field: 'age', gt: 20)
+       should_clause.range(field: 'salary', gt: 60_000)
+     end
+   end
+
+The behaviour of this clause is completely different to what would happen if
+``must`` and ``should`` where both in the top boolean clause.
+
+With the nested ``should`` clause, Elasticsearch will only return documents that
+match both the ``wildcard`` and ``query_string`` clauses AND match at least one
+of the ``range`` clauses.
+
+When ``should`` isn't nested Elasticsearch will return documents that match both
+the ``wildcard`` and ``query_string`` OR match any of the ``range`` clauses.
+
+This difference in behaviour becomes more apparent when querying multiple
+indexes where one of fields in the query isn't present in all the indexes.
+
 match_phrase
 ++++++++++++
 

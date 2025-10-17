@@ -9,6 +9,8 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 ## [Unreleased]
 
 ### Added
+- The `#bool` method to the `QueryBuilder::QueryClauses::Bool` class. This
+  allows boolean clauses to be nested.
 - `QueryBuilder#sort` can now receive either the direction of the sorting (`asc`
   or `desc`) or a `Hash` with advanced sorting options. These are relayed
   directly to Elasticsearch. 

@@ -61,6 +61,19 @@ module JayAPI
             add_boolean_clause(:must_not, &block)
           end
 
+          # Adds a nested +Boolean+ clause to the receiver. For this to work the
+          # receiver must have an active sub-clause (for example +must+).
+          # @yield [JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Bool]
+          #   Yields the nested boolean clause to the given block.
+          # @return [JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Bool]
+          #   Returns the nested boolean clause.
+          def bool(&block)
+            nested_bool = self.class.new
+            self << nested_bool
+            block&.call(nested_bool)
+            nested_bool
+          end
+
           # Adds a clause to the current sub-clause of the boolean clause.
           # @param [JayAPI::Elasticsearch::QueryBuilder::QueryClauses::QueryClause]
           #   query_clause The query clause to add.

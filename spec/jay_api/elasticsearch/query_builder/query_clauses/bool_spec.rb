@@ -101,6 +101,90 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Bool do
     end
   end
 
+  shared_examples_for '#bool' do
+    context "when the receiver doesn't have an active sub-clause" do
+      it 'raises a JayAPI::Elasticsearch::QueryBuilder::Errors::QueryBuilderError' do
+        expect { method_call }.to raise_error(
+          JayAPI::Elasticsearch::QueryBuilder::Errors::QueryBuilderError,
+          'Please call #must, #filter, #should or #must_not in order to add query clauses inside a boolean clause'
+        )
+      end
+    end
+
+    context 'when the receiver has an active sub-clause' do
+      let(:modified_method_call) do
+        method_call.must << dummy_clause.new('clause 2')
+        #          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        #          A match clause needs to be added to the nested boolean clause
+        #          or #to_h will error out because the nested boolean clause is
+        #          empty.
+      end
+
+      let(:expected_nested_boolean) do
+        {
+          bool: {
+            must: [
+              { value: 'clause 2' }
+            ]
+          }
+        }
+      end
+
+      let(:expected_boolean) do
+        {
+          bool: {
+            must_not: [
+              { value: 'clause 1' },
+              expected_nested_boolean
+            ]
+          }
+        }
+      end
+
+      before do
+        bool_clause.must_not << dummy_clause.new('clause 1')
+      end
+
+      it 'creates a new instance of the Bool clause class' do
+        expect(described_class).to receive(:new)
+        method_call
+      end
+
+      it 'adds the expected boolean clause' do
+        modified_method_call
+        expect(bool_clause.to_h).to eq(expected_boolean)
+      end
+
+      it 'returns the nested boolean clause' do
+        nested_boolean_clause = modified_method_call
+        expect(nested_boolean_clause).to be_a(described_class)
+        expect(nested_boolean_clause.to_h).to eq(expected_nested_boolean)
+      end
+    end
+  end
+
+  describe '#bool' do
+    context 'when no block has been given' do
+      subject(:method_call) { bool_clause.bool }
+
+      it_behaves_like '#bool'
+    end
+
+    context 'when a block has been given' do
+      subject(:method_call) { bool_clause.bool { nil } }
+
+      it_behaves_like '#bool'
+
+      context 'when the receiver has an active sub-clause' do
+        before { bool_clause.should }
+
+        it 'yields the nested boolean clause to the given block' do
+          expect { |b| bool_clause.bool(&b) }.to yield_with_args(be_a(described_class))
+        end
+      end
+    end
+  end
+
   describe '#to_h' do
     subject(:method_call) { bool_clause.to_h }
 

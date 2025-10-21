@@ -8,6 +8,8 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+## [29.1.0] - 2025-10-22
+
 ### Added
 - The `#bool` method to the `QueryBuilder::QueryClauses::Bool` class. This
   allows boolean clauses to be nested.

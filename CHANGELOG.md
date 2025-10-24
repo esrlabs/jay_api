@@ -8,6 +8,10 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+### Added
+- ActiveSupport's `#present?`, `#presence` and `#blank?` methods can now be used
+  in ERB configuration files.
+
 ## [29.1.0] - 2025-10-22
 
 ### Added

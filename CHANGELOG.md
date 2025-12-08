@@ -9,6 +9,8 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 ## [Unreleased]
 
 ### Added
+- A `#clone` method to `Elasticsearch::QueryBuilder` that properly clones the
+  `QueryBuilder` and its nested objects.
 - ActiveSupport's `#present?`, `#presence` and `#blank?` methods can now be used
   in ERB configuration files.
 

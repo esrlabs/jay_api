@@ -127,6 +127,16 @@ module JayAPI
         )
       end
 
+      # @return [JayAPI::Elasticsearch::QueryBuilder] A copy of the receiver.
+      def clone
+        copy = super
+        copy.source = @source.clone # source can be an Array or a Hash
+        copy.sort = @sort.clone     # sort is a Hash
+        copy.query = query.clone
+        copy.aggregations = aggregations.clone
+        copy
+      end
+
       protected
 
       attr_writer :from, :size, :source, :collapse, :sort, :query, :aggregations

@@ -701,4 +701,160 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder do
       end
     end
   end
+
+  describe '#clone' do
+    subject(:method_call) { query_builder.clone }
+
+    let(:query_clauses_clone) { query_clauses.clone }
+    let(:aggregations_clone) { aggregations.clone }
+
+    before do
+      allow(query_clauses).to receive(:clone).and_return(query_clauses_clone)
+      allow(aggregations).to receive(:clone).and_return(aggregations_clone)
+    end
+
+    shared_examples_for '#clone' do
+      it "returns an instance of #{described_class}" do
+        expect(method_call).to be_a(described_class)
+      end
+
+      it 'does not return the same object' do
+        expect(method_call).not_to be(query_builder)
+      end
+    end
+
+    context "when the receiver has no 'from' clause" do
+      it_behaves_like '#clone'
+
+      it "does not have a 'from' clause either" do
+        expect(method_call.to_query).not_to have_key(:from)
+      end
+    end
+
+    context "when the receiver has a 'from' clause" do
+      before { query_builder.from(100) }
+
+      it_behaves_like '#clone'
+
+      it "has the expected 'from' clause" do
+        expect(method_call.to_query).to include(from: 100)
+      end
+    end
+
+    context "when the receiver has no 'size' clause" do
+      it_behaves_like '#clone'
+
+      it "does not have a 'size' clause either" do
+        expect(method_call.to_query).not_to have_key(:size)
+      end
+    end
+
+    context "when the receiver has a 'size' clause" do
+      before { query_builder.size(500) }
+
+      it_behaves_like '#clone'
+
+      it "has the expected 'size' clause" do
+        expect(method_call.to_query).to include(size: 500)
+      end
+    end
+
+    context "when the receiver has no 'source' clause" do
+      it_behaves_like '#clone'
+
+      it "does not have a 'source' clause either" do
+        expect(method_call.to_query).not_to have_key(:_source)
+      end
+    end
+
+    context "when the receiver has a 'source' clause" do
+      before { query_builder.source('profile.*') }
+
+      it_behaves_like '#clone'
+
+      it "has the expected 'source' clause" do
+        expect(method_call.to_query).to include(_source: 'profile.*')
+      end
+    end
+
+    context "when the 'source' changes after cloning" do
+      let(:source) { %w[profile.* permissions.*] }
+
+      before do
+        query_builder.source(source)
+      end
+
+      it_behaves_like '#clone'
+
+      it "does not change the 'source' of the clone" do
+        clone = method_call
+        expect { source << 'pictures.*' }.not_to change(clone, :to_query)
+      end
+    end
+
+    context "when the receiver has no 'collapse' clause" do
+      it_behaves_like '#clone'
+
+      it "does not have a 'collapse' clause either" do
+        expect(method_call.to_query).not_to have_key(:collapse)
+      end
+    end
+
+    context "when the receiver has a 'collapse' clause" do
+      before { query_builder.collapse('profile.email') }
+
+      it_behaves_like '#clone'
+
+      it "has the expected 'collapse' clause" do
+        expect(method_call.to_query).to include(collapse: { field: 'profile.email' })
+      end
+    end
+
+    context "when the receiver has no 'sort' clause" do
+      it_behaves_like '#clone'
+
+      it "does not have a 'sort' clause either" do
+        expect(method_call.to_query).not_to have_key(:sort)
+      end
+    end
+
+    context "when the receiver has a 'sort' clause" do
+      before { query_builder.sort(age: :desc) }
+
+      it_behaves_like '#clone'
+
+      it "has the expected 'sort' clause" do
+        expect(method_call.to_query).to include(sort: [{ age: { order: :desc } }])
+      end
+    end
+
+    context "when the 'sort' changes after cloning" do
+      before { query_builder.sort(age: :desc) }
+
+      it_behaves_like '#clone'
+
+      it "does not change the 'sort' clause of the clone" do
+        clone = method_call
+        expect { query_builder.sort(name: :asc) }.not_to change(clone, :to_query)
+      end
+    end
+
+    it 'clones the nested QueryClauses object' do
+      expect(query_clauses).to receive(:clone)
+      method_call
+    end
+
+    it 'has the cloned QueryClauses object' do
+      expect(method_call.query).to be(query_clauses_clone)
+    end
+
+    it 'clones the nested Aggregations object' do
+      expect(aggregations).to receive(:clone)
+      method_call
+    end
+
+    it 'has the cloned Aggregations object' do
+      expect(method_call.aggregations).to be(aggregations_clone)
+    end
+  end
 end

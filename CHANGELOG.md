@@ -8,6 +8,8 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+## [29.2.0] - 2025-12-09
+
 ### Added
 - A `#clone` method to `Elasticsearch::QueryBuilder` that properly clones the
   `QueryBuilder` and its nested objects.

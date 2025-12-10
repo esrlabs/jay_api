@@ -22,8 +22,7 @@ RSpec.shared_examples_for 'ClientFactory initializing the Transport Client' do
 
     it 'defaults to using 9200 as a port number' do
       expect(Elasticsearch::Client).to receive(:new).with(
-        hosts: [host],
-        log: false
+        { hosts: [host], log: false }
       )
 
       client
@@ -31,7 +30,7 @@ RSpec.shared_examples_for 'ClientFactory initializing the Transport Client' do
   end
 
   context 'when the port is specified' do
-    subject(:client_factory) { described_class.new(cluster_url: 'https://www.es.com', port: 1234) }
+    let(:constructor_params) { super().merge(port: 1234) }
 
     let(:host) do
       {
@@ -43,8 +42,7 @@ RSpec.shared_examples_for 'ClientFactory initializing the Transport Client' do
 
     it 'uses the specified port number' do
       expect(Elasticsearch::Client).to receive(:new).with(
-        hosts: [host],
-        log: false
+        { hosts: [host], log: false }
       )
 
       client
@@ -52,9 +50,7 @@ RSpec.shared_examples_for 'ClientFactory initializing the Transport Client' do
   end
 
   context 'when the credentials are specified' do
-    subject(:client_factory) do
-      described_class.new(cluster_url: 'https://www.es.com', username: 'Koala', password: 'Bear')
-    end
+    let(:constructor_params) { super().merge(username: 'Koala', password: 'Bear') }
 
     let(:host) do
       {
@@ -68,8 +64,29 @@ RSpec.shared_examples_for 'ClientFactory initializing the Transport Client' do
 
     it 'initializes the Elasticsearch Client with the correct credentials' do
       expect(Elasticsearch::Client).to receive(:new).with(
-        hosts: [host],
-        log: false
+        { hosts: [host], log: false }
+      )
+
+      client
+    end
+  end
+
+  context 'when no timeout is given' do
+    it "initializes the Elasticsearch Client without the 'request_timeout' parameter" do
+      expect(Elasticsearch::Client).to receive(:new).with(
+        { hosts: [host], log: false }
+      )
+
+      client
+    end
+  end
+
+  context 'when a timeout is given' do
+    let(:create_params) { super().merge(timeout: 300) }
+
+    it "initializes the Elasticsearch Client with the expected 'request_timeout' parameter" do
+      expect(Elasticsearch::Client).to receive(:new).with(
+        { hosts: [host], log: false, request_timeout: 300 }
       )
 
       client
@@ -78,7 +95,11 @@ RSpec.shared_examples_for 'ClientFactory initializing the Transport Client' do
 end
 
 RSpec.describe JayAPI::Elasticsearch::ClientFactory do
-  subject(:client_factory) { described_class.new(cluster_url: 'https://www.es.com') }
+  subject(:client_factory) { described_class.new(**constructor_params) }
+
+  let(:constructor_params) do
+    { cluster_url: 'https://www.es.com' }
+  end
 
   shared_examples_for '#create' do
     it_behaves_like 'ClientFactory initializing the Transport Client'
@@ -97,6 +118,10 @@ RSpec.describe JayAPI::Elasticsearch::ClientFactory do
   end
 
   describe '#create' do
+    subject(:client) { client_factory.create(**create_params) }
+
+    let(:create_params) { {} }
+
     let(:host) do
       {
         host: 'www.es.com',
@@ -114,30 +139,25 @@ RSpec.describe JayAPI::Elasticsearch::ClientFactory do
     let(:expected_max_attempts) { 4 }
 
     before do
-      allow(Elasticsearch::Client).to receive(:new).with(
-        hosts: [host],
-        log: false
-      ).and_return(transport_client)
+      allow(Elasticsearch::Client).to receive(:new).and_return(transport_client)
     end
 
     context 'without any specified parameters' do
-      subject(:client) { client_factory.create }
+      let(:create_params) { {} }
 
       it_behaves_like '#create'
     end
 
     context "when specifying the 'wait_strategy' param" do
       context "with 'geometric'" do
-        subject(:client) { client_factory.create(wait_strategy: :geometric) }
-
+        let(:create_params) { super().merge(wait_strategy: :geometric) }
         let(:expected_wait_strategy) { JayAPI::Abstract::GeometricWait }
 
         it_behaves_like '#create'
       end
 
       context "with 'constant'" do
-        subject(:client) { client_factory.create(wait_strategy: :constant) }
-
+        let(:create_params) { super().merge(wait_strategy: :constant) }
         let(:expected_wait_strategy) { JayAPI::Abstract::ConstantWait }
 
         it_behaves_like '#create'
@@ -145,16 +165,14 @@ RSpec.describe JayAPI::Elasticsearch::ClientFactory do
     end
 
     context "when specifying the 'max_attempts' param" do
-      subject(:client) { client_factory.create(max_attempts: expected_max_attempts) }
-
+      let(:create_params) { super().merge(max_attempts: expected_max_attempts) }
       let(:expected_max_attempts) { 100 }
 
       it_behaves_like '#create'
     end
 
     context "when specifying the 'wait_interval' param" do
-      subject(:client) { client_factory.create(wait_interval: expected_wait_interval) }
-
+      let(:create_params) { super().merge(wait_interval: expected_wait_interval) }
       let(:expected_wait_interval) { 399 }
 
       it_behaves_like '#create'

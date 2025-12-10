@@ -62,13 +62,17 @@ module JayAPI
       #   each connection will be:
       #   * wait_interval with :constant wait strategy
       #   * wait_interval**i with :geometric wait strategy (where i is the i'th re-try)
+      # @param [Integer] timeout The number of seconds to wait for Elasticsearch's
+      #   response. For big queries that fetch large amounts of data the default
+      #   timeout may be too low.
       # @return [JayAPI::Elasticsearch::Client] The Elasticsearch client.
-      def create(max_attempts: MAX_ATTEMPTS, wait_strategy: :geometric, wait_interval: WAIT_INTERVAL)
+      def create(max_attempts: MAX_ATTEMPTS, wait_strategy: :geometric, wait_interval: WAIT_INTERVAL, timeout: nil)
         JayAPI::Elasticsearch::Client.new(
-          ::Elasticsearch::Client.new(
+          ::Elasticsearch::Client.new({
             hosts: [host],
-            log: false
-          ),
+            log: false,
+            request_timeout: timeout
+          }.compact),
           logger,
           max_attempts: max_attempts,
           wait_strategy: WAIT_STRATEGIES[wait_strategy].new(wait_interval: wait_interval, logger: logger)

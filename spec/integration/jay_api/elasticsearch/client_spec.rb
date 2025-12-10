@@ -21,8 +21,7 @@ RSpec.describe JayAPI::Elasticsearch::Client do
 
   before do
     allow(Elasticsearch::Client).to receive(:new).with(
-      hosts: [host],
-      log: false
+      { hosts: [host], log: false }
     ).and_return(transport_client)
   end
 

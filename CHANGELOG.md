@@ -8,6 +8,8 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+## [29.3.0] - 2025-12-11
+
 ### Added
 - The `timeout` parameter to `Elasticsearch::ClientFactory#create`. The parameter
   allows the user to specify the timeout in seconds for Elasticsearch requests.

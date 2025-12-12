@@ -129,7 +129,7 @@ module JayAPI
     # @return [Hash, nil] The last set of properties (ordered chronologically)
     #   or +nil+ if no properties are found.
     def last
-      sort_records('asc').size(1)
+      sort_records('desc').size(1)
       fetch_properties.last
     end
 

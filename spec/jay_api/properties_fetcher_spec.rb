@@ -347,7 +347,7 @@ RSpec.describe JayAPI::PropertiesFetcher do
 
     shared_examples_for '#last' do
       it 'adds a sorting clause to the query' do
-        expect(query_builder).to receive(:sort).with('timestamp' => 'asc')
+        expect(query_builder).to receive(:sort).with('timestamp' => 'desc')
         method_call
       end
 

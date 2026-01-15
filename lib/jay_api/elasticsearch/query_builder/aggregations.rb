@@ -9,6 +9,7 @@ require_relative 'aggregations/composite'
 require_relative 'aggregations/date_histogram'
 require_relative 'aggregations/filter'
 require_relative 'aggregations/scripted_metric'
+require_relative 'aggregations/bucket_selector'
 require_relative 'aggregations/sum'
 require_relative 'aggregations/max'
 require_relative 'aggregations/terms'
@@ -82,6 +83,19 @@ module JayAPI
             ::JayAPI::Elasticsearch::QueryBuilder::Aggregations::ScriptedMetric.new(
               name, map_script: map_script, combine_script: combine_script,
                     reduce_script: reduce_script, init_script: init_script
+            )
+          )
+        end
+
+        # Adds an +bucket_selector+ type aggregation. For information about the parameters
+        # @see JayAPI::Elasticsearch::QueryBuilder::Aggregations::BucketSelector#initialize
+        def bucket_selector(name, buckets_path:, script:, gap_policy: nil)
+          add(
+            ::JayAPI::Elasticsearch::QueryBuilder::Aggregations::BucketSelector.new(
+              name,
+              buckets_path: buckets_path,
+              script: script,
+              gap_policy: gap_policy
             )
           )
         end

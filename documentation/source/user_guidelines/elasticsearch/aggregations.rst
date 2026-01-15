@@ -377,6 +377,79 @@ and ``brand.name`` in the index. The buckets will only say how many documents
 (``doc_count``) exist for each combination. Nested aggregations could be added
 to get other information out of the documents in each bucket.
 
+bucket_selector
+---------------
+
+This is a pipeline aggregation that can select (or filter out, depending on how
+you see it) some of the buckets produced by a multi-bucket aggregation.
+
+Detailed information on how to use this aggregation can be found on
+`Elasticsearch's documentation on the Bucket Selector aggregation`_
+
+Code example:
+
+.. code-block:: ruby
+
+   query_builder = JayAPI::Elasticsearch::QueryBuilder.new
+   query_builder.size(0)
+   query_builder.aggregations.date_histogram('sales_per_month', field: 'date', calendar_interval: 'month').aggs do |aggs|
+     aggs.sum('total_sales', field: 'price')
+     aggs.bucket_selector(
+       'sales_bucket_filter', buckets_path: { totalSales: 'total_sales' },
+                              script: JayAPI::Elasticsearch::QueryBuilder::Script.new(source: 'params.totalSales > 200')
+     )
+   end
+
+This would generate the following query:
+
+.. code-block:: json
+
+   {
+     "size": 0,
+     "query": {
+       "match_all": {}
+     },
+     "aggs": {
+       "sales_per_month": {
+         "date_histogram": {
+           "field": "date",
+           "calendar_interval": "month"
+         },
+         "aggs": {
+           "total_sales": {
+             "sum": {
+               "field": "price"
+             }
+           },
+           "sales_bucket_filter": {
+             "bucket_selector": {
+               "buckets_path": {
+                 "totalSales": "total_sales"
+               },
+               "script": {
+                 "source": "params.totalSales > 200",
+                 "lang": "painless"
+               }
+             }
+           }
+         }
+       }
+     }
+   }
+
+This query tells Elasticsearch to create a Date Histogram divided by month.
+In each of the buckets of the histogram it uses a Sum aggregation to calculate
+the total sales amount for that month, finally the bucket_selector aggregation
+picks only the buckets that have ``total_sales`` greater than 200.
+
+Note that the Bucket Selector aggregation is a sibling of the ``sum``
+aggregation and **NOT** a nested aggregation, which ``sum`` cannot have.
+
+Also, note that the ``buckets_path`` expression is just ``total_sales``. This
+works because ``sum`` is a single-value aggregation. The syntax would need to
+be different if the filtering was happening on a multi-bucket / multi-value
+aggregation. Please see `Elasticsearch's documentation for buckets_path`_.
+
 .. _`Elasticsearch's documentation on the Terms aggregation`: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html
 .. _`Elasticsearch's documentation on the Avg aggregation`: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-avg-aggregation.html
 .. _`Elasticsearch's documentation on the Sum aggregation`: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-sum-aggregation.html
@@ -386,4 +459,6 @@ to get other information out of the documents in each bucket.
 .. _`Elasticsearch's documentation on the Date Histogram aggregation`: https://www.elastic.co/docs/reference/aggregations/search-aggregations-bucket-datehistogram-aggregation
 .. _`Elasticsearch's documentation on the Scripted Metric aggregation`: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-scripted-metric-aggregation.html
 .. _`Elasticsearch's documentation on the Composite aggregation`: https://www.elastic.co/docs/reference/aggregations/search-aggregations-bucket-composite-aggregation
+.. _`Elasticsearch's documentation on the Bucket Selector aggregation`: https://www.elastic.co/docs/reference/aggregations/search-aggregations-pipeline-bucket-selector-aggregation
+.. _`Elasticsearch's documentation for buckets_path`: https://www.elastic.co/docs/reference/aggregations/pipeline#buckets-path-syntax
 .. _`Painless`: https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-scripting-painless.html

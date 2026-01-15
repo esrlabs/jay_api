@@ -505,6 +505,72 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::Aggregations do
     end
   end
 
+  describe '#bucket_selector' do
+    subject(:method_call) do
+      aggregations.bucket_selector(name, **method_params)
+    end
+
+    let(:method_params) do
+      { buckets_path:, script: }
+    end
+
+    let(:name) { 'only_slow_tests' }
+    let(:buckets_path) { { total: 'total_duration_ms' } }
+
+    let(:script) do
+      instance_double(
+        JayAPI::Elasticsearch::QueryBuilder::Script
+      )
+    end
+
+    let(:bucket_selector) do
+      instance_double(
+        JayAPI::Elasticsearch::QueryBuilder::Aggregations::BucketSelector,
+        to_h: { 'bucket_selector' => { '#to_h' => {} } }
+      )
+    end
+
+    before do
+      allow(JayAPI::Elasticsearch::QueryBuilder::Aggregations::BucketSelector)
+        .to receive(:new).and_return(bucket_selector)
+    end
+
+    shared_examples_for '#bucket_selector when no gap_policy is given' do
+      it 'creates the BucketSelector instance with the expected parameters' do
+        expect(JayAPI::Elasticsearch::QueryBuilder::Aggregations::BucketSelector)
+          .to receive(:new).with(name, buckets_path:, script:, gap_policy: nil)
+
+        method_call
+      end
+    end
+
+    context 'when no gap_policy is given' do
+      it_behaves_like '#bucket_selector when no gap_policy is given'
+    end
+
+    context 'when gap_policy is given as nil' do
+      let(:method_params) { super().merge(gap_policy: nil) }
+
+      it_behaves_like '#bucket_selector when no gap_policy is given'
+    end
+
+    context 'when a gap_policy is provided' do
+      let(:method_params) { super().merge(gap_policy: 'skip') }
+
+      it 'creates the BucketSelector instance with the expected parameters' do
+        expect(JayAPI::Elasticsearch::QueryBuilder::Aggregations::BucketSelector)
+          .to receive(:new).with(name, buckets_path:, script:, gap_policy: 'skip')
+
+        method_call
+      end
+    end
+
+    it 'adds the BucketSelector instance to the array of aggregations' do
+      expect { method_call }.to change(aggregations, :to_h)
+        .to(aggs: { 'bucket_selector' => { '#to_h' => {} } })
+    end
+  end
+
   describe '#to_h' do
     subject(:method_call) { aggregations.to_h }
 

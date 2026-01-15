@@ -8,6 +8,12 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+### Added
+- Support for the `bucket_selector` pipeline aggregation in
+  `Elasticsearch::QueryBuilder::Aggregations`. This allows filtering
+  buckets based on computed metrics (e.g., filtering terms buckets by
+  aggregated values).
+
 ## [29.3.1] - 2025-12-15
 
 ### Fixed
@@ -35,7 +41,7 @@ Please mark backwards incompatible changes with an exclamation mark at the start
   allows boolean clauses to be nested.
 - `QueryBuilder#sort` can now receive either the direction of the sorting (`asc`
   or `desc`) or a `Hash` with advanced sorting options. These are relayed
-  directly to Elasticsearch. 
+  directly to Elasticsearch.
 
 ## [29.0.0] - 2025-08-28
 

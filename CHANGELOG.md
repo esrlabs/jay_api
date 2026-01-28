@@ -8,6 +8,8 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+## [29.4.0] - 2026-01-28
+
 ### Added
 - Support for the `bucket_selector` pipeline aggregation in
   `Elasticsearch::QueryBuilder::Aggregations`. This allows filtering

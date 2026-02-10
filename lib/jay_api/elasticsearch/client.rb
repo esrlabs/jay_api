@@ -98,6 +98,16 @@ module JayAPI
         @stats ||= ::JayAPI::Elasticsearch::Stats.new(transport_client)
       end
 
+      # Re-indexes data onto the same index or between indexes, can be
+      # constrained via a query.
+      # @see Elasticsearch::API::Actions#reindex for the full list of parameters
+      #   and their meaning.
+      # @see https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-reindex
+      #   for more information about what the reindex can do and how it works.
+      def reindex(**args)
+        transport_client.reindex(**args)
+      end
+
       private
 
       # @param [Proc] block The block to execute.

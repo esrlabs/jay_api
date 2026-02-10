@@ -81,6 +81,14 @@ module JayAPI
         params = { index: index_name, only_expunge_deletes: }.compact
         client.transport_client.indices.forcemerge(**params)
       end
+
+      def destroy
+        client.transport_client.indices.delete(index: index_name)
+      end
+
+      def clone!(target:)
+        client.transport_client.indices.clone(index: index_name, target:)
+      end
     end
   end
 end

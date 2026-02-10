@@ -47,7 +47,7 @@ RSpec.shared_examples_for 'Indexable#initialize' do
   end
 end
 
-RSpec.shared_examples_for 'Indexable#index' do
+RSpec.shared_examples_for 'Indexable#validate_type' do
   context 'when type is set to an invalid value' do
     let(:method_params) { { type: 'flatten' } }
 

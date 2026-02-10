@@ -8,6 +8,10 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+### Added
+- Allow the `Elasticsearch::Index` and `Elasticsearch::Indexes`'s `#push` method
+  to receive a `type` parameter, just like `#index` does.
+
 ## [29.4.0] - 2026-01-28
 
 ### Added

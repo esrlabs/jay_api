@@ -123,8 +123,10 @@ RSpec.describe JayAPI::Elasticsearch::Indexes do
   describe '#push' do
     subject(:method_call) { described_method.call }
 
+    let(:method_params) { {} }
+
     # Needed in order to be able to repeat the method call
-    let(:described_method) { -> { indexes.push(data) } }
+    let(:described_method) { -> { indexes.push(data, **method_params) } }
 
     let(:constructor_params) do
       super().merge(batch_size: 15)
@@ -144,31 +146,67 @@ RSpec.describe JayAPI::Elasticsearch::Indexes do
       }
     end
 
-    context 'when the amount of data is smaller than the batch size' do
-      it 'enqueues the data but does not push it to Elasticsearch' do
-        expect(client).not_to receive(:bulk)
-        3.times { described_method.call }
+    shared_examples_for '#push' do
+      context 'when the amount of data is smaller than the batch size' do
+        it 'enqueues the data but does not push it to Elasticsearch' do
+          expect(client).not_to receive(:bulk)
+          3.times { described_method.call }
+        end
+      end
+
+      context 'when the amount of data matches the batch size' do
+        it 'puts the data with the correct structure in the queue' do
+          expect(client).to receive(:bulk).with(expected_data)
+          5.times { described_method.call }
+        end
+
+        it 'leaves the queue empty' do
+          5.times { described_method.call }
+          expect(indexes.queue_size).to be_zero
+        end
+      end
+
+      context 'when the amount of data goes over the batch size' do
+        it 'pushes the data to Elasticsearch every time the batch size is hit' do
+          expect(client).to receive(:bulk).with(expected_data).exactly(3).times
+          15.times { described_method.call }
+        end
       end
     end
 
-    context 'when the amount of data matches the batch size' do
-      it 'puts the data with the correct structure in the queue' do
-        expect(client).to receive(:bulk).with(expected_data)
-        5.times { described_method.call }
-      end
+    context 'when no type is specified' do
+      let(:method_params) { {} }
 
-      it 'leaves the queue empty' do
-        5.times { described_method.call }
-        expect(indexes.queue_size).to be_zero
-      end
+      it_behaves_like '#push'
     end
 
-    context 'when the amount of data goes over the batch size' do
-      it 'pushes the data to Elasticsearch every time the batch size is hit' do
-        expect(client).to receive(:bulk).with(expected_data).exactly(3).times
-        15.times { described_method.call }
-      end
+    context "when 'nested' is specified as a type" do
+      let(:method_params) { { type: 'nested' } }
+
+      it_behaves_like '#push'
     end
+
+    context 'when nil is specified as a type' do
+      let(:method_params) { { type: nil } }
+
+      let(:expected_data) do
+        {
+          body: index_names.cycle(5).map do |index_name|
+            {
+              index: {
+                _index: index_name,
+                # _type: 'nested', <=== Removed, should not be present
+                data: data
+              }
+            }
+          end
+        }
+      end
+
+      it_behaves_like '#push'
+    end
+
+    it_behaves_like 'Indexable#validate_type'
   end
 
   describe '#index' do
@@ -298,7 +336,7 @@ RSpec.describe JayAPI::Elasticsearch::Indexes do
       end
     end
 
-    it_behaves_like 'Indexable#index'
+    it_behaves_like 'Indexable#validate_type'
   end
 
   describe '#queue_size' do

@@ -48,9 +48,13 @@ module JayAPI
       # Pushes a record into the index. (This does not send the record to the
       # Elasticsearch instance, only puts it into the send queue).
       # @param [Hash] data The data to be pushed to the index.
-      def push(data)
+      # @param [String, nil] type The type of the document. When set to +nil+
+      #   the decision is left to Elasticsearch's API. Which will normally
+      #   default to +_doc+.
+      def push(data, type: DEFAULT_DOC_TYPE)
+        validate_type(type)
         index_names.each do |index_name|
-          batch << { index: { _index: index_name, _type: 'nested', data: data } }
+          batch << { index: { _index: index_name, _type: type, data: data }.compact }
         end
 
         flush! if batch.size >= batch_size
@@ -78,8 +82,7 @@ module JayAPI
       # For information on the contents of this Hash please see:
       # https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-index_.html#docs-index-api-response-body
       def index(data, type: DEFAULT_DOC_TYPE)
-        raise ArgumentError, "Unsupported type: '#{type}'" unless SUPPORTED_TYPES.include?(type)
-
+        validate_type(type)
         index_names.map { |index_name| client.index index: index_name, type: type, body: data }
       end
 
@@ -219,6 +222,15 @@ module JayAPI
       # @return [JayAPI::Elasticsearch::Async]
       def async
         @async ||= JayAPI::Elasticsearch::Async.new(self)
+      end
+
+      # @param [String, nil] type The type of the document. When set to +nil+
+      #   the decision is left to Elasticsearch's API. Which will normally
+      #   default to +_doc+.
+      # @raise [ArgumentError] When the given +type+ is not one of the
+      #   +SUPPORTED_TYPES+
+      def validate_type(type)
+        raise ArgumentError, "Unsupported type: '#{type}'" unless SUPPORTED_TYPES.include?(type)
       end
     end
   end

@@ -79,7 +79,7 @@ module JayAPI
           }
         }
 
-        elasticsearch_index.push(data)
+        elasticsearch_index.push(data, **push_params)
       end
 
       # Executed by RSpec at the end of the test run. If the push is enabled,
@@ -93,6 +93,14 @@ module JayAPI
       private
 
       attr_reader :push_enabled
+
+      # @return [Hash] Additional parameters for the Elasticsearch::Index#push.
+      def push_params
+        # The extraction of the parameters is done with a #slice to be able to
+        # differentiate between when the parameter is not specified (completely
+        # absent) or when the parameter has been specified as +nil+.
+        @push_params ||= configuration.to_h.slice(:type)
+      end
 
       # @return [Hash] The configuration set for Elasticsearch as a hash. If no
       #   value has been set for the batch size a reasonable default is set.

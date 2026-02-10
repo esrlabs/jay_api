@@ -7,13 +7,20 @@ RSpec.shared_context 'when JayAPI::RSpec is configured' do
   let(:elasticsearch_config) { nil }
   let(:project) { 'jay_api' }
 
+  let(:configuration_hash) do
+    {
+      push_enabled: push_enabled,
+      elasticsearch: elasticsearch_config,
+      project: project
+    }
+  end
+
   # rubocop:disable Rspec/VerifiedDoubles (cannot be used because of meta-programming)
   let(:configuration) do
     double(
       JayAPI::Configuration,
-      push_enabled: push_enabled,
-      elasticsearch: elasticsearch_config,
-      project: project
+      to_h: configuration_hash,
+      **configuration_hash
     )
   end
   # rubocop:enable Rspec/VerifiedDoubles
@@ -49,9 +56,38 @@ RSpec.shared_context 'when JayAPI::RSpec has Elasticsearch configuration' do
 end
 
 RSpec.shared_examples 'JayAPI::RSpec::TestDataCollector#example_finished pushes the right data to Elasticsearch' do
-  it 'pushes the expected data to the Elasticsearch Index' do
-    expect(elasticsearch_index).to receive(:push).with(expected_data)
-    method_call
+  shared_examples_for '#example_finished when a type has been specified in the configuration' do
+    it 'pushes the expected data to the Elasticsearch Index with the expected type' do
+      expect(elasticsearch_index).to receive(:push).with(expected_data, type: expected_type)
+      method_call
+    end
+  end
+
+  context 'when no type has been specified in the configuration' do
+    it 'pushes the expected data to the Elasticsearch Index' do
+      expect(elasticsearch_index).to receive(:push).with(expected_data)
+      method_call
+    end
+  end
+
+  context 'when a type is specified in the configuration' do
+    let(:configuration_hash) do
+      super().merge(type: 'nested')
+    end
+
+    let(:expected_type) { 'nested' }
+
+    it_behaves_like '#example_finished when a type has been specified in the configuration'
+  end
+
+  context 'when a nil is specified in the configuration as type' do
+    let(:configuration_hash) do
+      super().merge(type: nil)
+    end
+
+    let(:expected_type) { nil }
+
+    it_behaves_like '#example_finished when a type has been specified in the configuration'
   end
 end
 

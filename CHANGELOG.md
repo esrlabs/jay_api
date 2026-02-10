@@ -9,6 +9,9 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 ## [Unreleased]
 
 ### Added
+- It is now possible to configure the type used by the `RSpec::TestDataCollector`
+  class when pushing documents to Elasticsearch. If no type is specified in the
+  configuration the default type will be used.
 - Allow the `Elasticsearch::Index` and `Elasticsearch::Indexes`'s `#push` method
   to receive a `type` parameter, just like `#index` does.
 

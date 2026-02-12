@@ -15,6 +15,8 @@ Please mark backwards incompatible changes with an exclamation mark at the start
   when `active_support/core_ext/string` hadn't been loaded.
 
 ### Added
+- The `Elasticsearch::Indices::Settings` class. The class encapsulates an
+  index's settings.
 - It is now possible to configure the type used by the `RSpec::TestDataCollector`
   class when pushing documents to Elasticsearch. If no type is specified in the
   configuration the default type will be used.

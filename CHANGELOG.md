@@ -15,6 +15,9 @@ Please mark backwards incompatible changes with an exclamation mark at the start
   when `active_support/core_ext/string` hadn't been loaded.
 
 ### Added
+- The `Elasticsearch::Stats::Index::Totals` class. The class contains information
+  about an index's total metrics, for example, total number of documents, total
+  size, etc.
 - The `#settings` method to the `Elasticsearch::Index` class. This gives the
   caller access to the index's settings.
 - The `Elasticsearch::Indices::Settings::Blocks` class. The class encapsulates

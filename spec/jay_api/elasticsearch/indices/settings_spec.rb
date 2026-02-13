@@ -137,4 +137,27 @@ RSpec.describe JayAPI::Elasticsearch::Indices::Settings do
       end
     end
   end
+
+  describe '#blocks' do
+    subject(:method_call) { settings.blocks }
+
+    let(:blocks) do
+      instance_double(
+        JayAPI::Elasticsearch::Indices::Settings::Blocks
+      )
+    end
+
+    before do
+      allow(JayAPI::Elasticsearch::Indices::Settings::Blocks).to receive(:new).and_return(blocks)
+    end
+
+    it 'creates an instance of the Blocks class with the expected parameters' do
+      expect(JayAPI::Elasticsearch::Indices::Settings::Blocks).to receive(:new).with(settings)
+      method_call
+    end
+
+    it 'returns the instance of the Blocks class' do
+      expect(method_call).to be(blocks)
+    end
+  end
 end

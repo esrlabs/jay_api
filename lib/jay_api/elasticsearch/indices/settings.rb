@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'settings/blocks'
+
 module JayAPI
   module Elasticsearch
     module Indices
@@ -36,6 +38,12 @@ module JayAPI
         def all
           transport_client.indices.get_settings(index: index_name)
                           .fetch(index_name).fetch('settings').fetch('index')
+        end
+
+        # @return [JayAPI::Elasticsearch::Indices::Settings::Blocks] The blocks
+        #   settings for the given index.
+        def blocks
+          @blocks ||= ::JayAPI::Elasticsearch::Indices::Settings::Blocks.new(self)
         end
       end
     end

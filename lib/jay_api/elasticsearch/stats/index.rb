@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'index/totals'
+
 module JayAPI
   module Elasticsearch
     class Stats
@@ -13,6 +15,17 @@ module JayAPI
           @name = name
           @data = data
         end
+
+        # @return [JayAPI::Elasticsearch::Stats::Index::Totals] Information
+        #   about the index's total metrics.
+        # @raise [KeyError] If the given data doesn't have a +total+ key.
+        def totals
+          @totals ||= ::JayAPI::Elasticsearch::Stats::Index::Totals.new(data.fetch('total'))
+        end
+
+        private
+
+        attr_reader :data
       end
     end
   end

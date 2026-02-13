@@ -15,6 +15,8 @@ Please mark backwards incompatible changes with an exclamation mark at the start
   when `active_support/core_ext/string` hadn't been loaded.
 
 ### Added
+- The `#force_merge` method to the `Elasticsearch::Index` class. This method
+  starts a Forced Segment Merge on the index.
 - The `#totals` method to `Elasticsearch::Stats::Index`, this gives the caller
   access to the index's total metrics.
 - The `Elasticsearch::Stats::Index::Totals` class. The class contains information

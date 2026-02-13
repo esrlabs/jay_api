@@ -2,6 +2,7 @@
 
 require_relative 'indexable'
 require_relative 'indices/settings'
+require_relative 'errors/writable_index_error'
 
 module JayAPI
   module Elasticsearch
@@ -56,6 +57,29 @@ module JayAPI
       def settings
         # DO NOT MEMOIZE! Leave it to the caller.
         ::JayAPI::Elasticsearch::Indices::Settings.new(client.transport_client, index_name)
+      end
+
+      # Starts a Forced Segment Merge process on the index.
+      #
+      # ⚠️ For big indexes this process can take a very long time, make sure to
+      #    adjust the timeout when creating the client.
+      # @param [Boolean] only_expunge_deletes Specifies whether the operation
+      #   should only remove deleted documents.
+      # @raise [JayAPI::Elasticsearch::Errors::WritableIndexError] If the index
+      #   is writable (hasn't been set to read-only).
+      # @return [Hash] A +Hash+ with the result of the index merging process,
+      #   it looks like this:
+      #
+      #   { "_shards" => { "total" => 10, "successful" => 10, "failed" => 0 } }
+      def force_merge(only_expunge_deletes: nil)
+        unless settings.blocks.write_blocked?
+          raise ::JayAPI::Elasticsearch::Errors::WritableIndexError,
+                "Write block for '#{index_name}' has not been enabled. " \
+                "Please enable the index's write block before performing a segment merge"
+        end
+
+        params = { index: index_name, only_expunge_deletes: }.compact
+        client.transport_client.indices.forcemerge(**params)
       end
     end
   end

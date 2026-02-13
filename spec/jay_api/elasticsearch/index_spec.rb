@@ -231,6 +231,135 @@ RSpec.describe JayAPI::Elasticsearch::Index do
     end
   end
 
+  describe '#force_merge' do
+    subject(:method_call) { index.force_merge(**method_params) }
+
+    let(:method_params) { {} }
+
+    let(:write_blocked?) { true }
+
+    let(:blocks) do
+      instance_double(
+        JayAPI::Elasticsearch::Indices::Settings::Blocks,
+        write_blocked?: write_blocked?
+      )
+    end
+
+    let(:settings) do
+      instance_double(
+        JayAPI::Elasticsearch::Indices::Settings,
+        blocks: blocks
+      )
+    end
+
+    let(:request_result) do
+      { '_shards' => { 'total' => 10, 'successful' => 10, 'failed' => 0 } }
+    end
+
+    let(:indices_client) do
+      instance_double(
+        Elasticsearch::API::Indices::IndicesClient,
+        forcemerge: request_result
+      )
+    end
+
+    before do
+      allow(JayAPI::Elasticsearch::Indices::Settings).to receive(:new).and_return(settings)
+      allow(transport_client).to receive(:indices).and_return(indices_client)
+    end
+
+    context 'when the fetching of the settings raises an HTTP error' do
+      let(:error) do
+        [
+          Elasticsearch::Transport::Transport::Errors::RequestTimeout,
+          '408 - Timed out'
+        ]
+      end
+
+      before do
+        allow(blocks).to receive(:write_blocked?).and_raise(*error)
+      end
+
+      it 're-raises the error' do
+        expect { method_call }.to raise_error(*error)
+      end
+    end
+
+    context 'when the fetching of the settings raises a KeyError' do
+      let(:error) { [KeyError, 'key not found: "blocks"'] }
+
+      before do
+        allow(blocks).to receive(:write_blocked?).and_raise(*error)
+      end
+
+      it 're-raises the error' do
+        expect { method_call }.to raise_error(*error)
+      end
+    end
+
+    context 'when the index is not in read-only mode' do
+      let(:write_blocked?) { false }
+
+      it 'raises a WritableIndexError' do
+        expect { method_call }.to raise_error(
+          JayAPI::Elasticsearch::Errors::WritableIndexError,
+          "Write block for 'elite_unit_tests' has not been enabled. " \
+          "Please enable the index's write block before performing a segment merge"
+        )
+      end
+    end
+
+    context "when 'only_expunge_deletes' is omitted" do
+      it 'starts a Force Merge process for the index, with no additional parameters' do
+        expect(indices_client).to receive(:forcemerge).with(index: 'elite_unit_tests')
+        method_call
+      end
+    end
+
+    context "when 'only_expunge_deletes' set to false" do
+      let(:method_params) { super().merge(only_expunge_deletes: false) }
+
+      it 'starts a Force Merge process for the index, with only_expunge_deletes set to false' do
+        expect(indices_client).to receive(:forcemerge)
+          .with(index: 'elite_unit_tests', only_expunge_deletes: false)
+
+        method_call
+      end
+    end
+
+    context "when 'only_expunge_deletes' set to true" do
+      let(:method_params) { super().merge(only_expunge_deletes: true) }
+
+      it 'starts a Force Merge process for the index, with only_expunge_deletes set to true' do
+        expect(indices_client).to receive(:forcemerge)
+          .with(index: 'elite_unit_tests', only_expunge_deletes: true)
+
+        method_call
+      end
+    end
+
+    context 'when the Force Merge API call fails' do
+      let(:error) do
+        [
+          Elasticsearch::Transport::Transport::Errors::Forbidden,
+          '408 - You do not have permissions to perform this action'
+        ]
+      end
+
+      before do
+        allow(indices_client).to receive(:forcemerge).and_raise(*error)
+      end
+
+      it 're-raises the error' do
+        expect { method_call }.to raise_error(*error)
+      end
+    end
+
+    it 'returns the Hash with the result of the request' do
+      expect(method_call).to be(request_result)
+    end
+  end
+
   describe '#queue_size' do
     subject(:method_call) { index.queue_size }
 

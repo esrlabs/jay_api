@@ -15,6 +15,8 @@ Please mark backwards incompatible changes with an exclamation mark at the start
   when `active_support/core_ext/string` hadn't been loaded.
 
 ### Added
+- The `#settings` method to the `Elasticsearch::Index` class. This gives the
+  caller access to the index's settings.
 - The `Elasticsearch::Indices::Settings::Blocks` class. The class encapsulates
   an index's blocks settings (for example, whether the index is read-only).
 - The `Elasticsearch::Indices::Settings` class. The class encapsulates an

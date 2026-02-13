@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'indexable'
+require_relative 'indices/settings'
 
 module JayAPI
   module Elasticsearch
@@ -48,6 +49,13 @@ module JayAPI
       # https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-index_.html#docs-index-api-response-body
       def index(data, type: DEFAULT_DOC_TYPE)
         super.first
+      end
+
+      # @return [JayAPI::Elasticsearch::Indices::Settings] The settings for the
+      #   index.
+      def settings
+        # DO NOT MEMOIZE! Leave it to the caller.
+        ::JayAPI::Elasticsearch::Indices::Settings.new(client.transport_client, index_name)
       end
     end
   end

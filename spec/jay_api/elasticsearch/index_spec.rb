@@ -205,6 +205,32 @@ RSpec.describe JayAPI::Elasticsearch::Index do
     it_behaves_like 'Indexable#validate_type'
   end
 
+  describe '#settings' do
+    subject(:method_call) { index.settings }
+
+    let(:settings) do
+      instance_double(
+        JayAPI::Elasticsearch::Indices::Settings
+      )
+    end
+
+    before do
+      allow(JayAPI::Elasticsearch::Indices::Settings)
+        .to receive(:new).and_return(settings)
+    end
+
+    it 'creates an instance of the Settings class with the expected parameters' do
+      expect(JayAPI::Elasticsearch::Indices::Settings)
+        .to receive(:new).with(transport_client, 'elite_unit_tests')
+
+      method_call
+    end
+
+    it 'returns the Settings object' do
+      expect(method_call).to be(settings)
+    end
+  end
+
   describe '#queue_size' do
     subject(:method_call) { index.queue_size }
 

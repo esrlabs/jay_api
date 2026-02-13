@@ -3,11 +3,18 @@
 RSpec.shared_context 'with mocked objects for Elasticsearch::Indexable' do
   let(:response) { {} }
 
+  let(:transport_client) do
+    instance_double(
+      Elasticsearch::Transport::Client
+    )
+  end
+
   let(:client) do
     instance_double(
       JayAPI::Elasticsearch::Client,
       bulk: successful_response,
-      search: response
+      search: response,
+      transport_client:
     )
   end
 

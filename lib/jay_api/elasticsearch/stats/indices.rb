@@ -10,7 +10,7 @@ module JayAPI
       class Indices
         # A lambda used to select / reject system indices (indices whose name
         # starts with dot).
-        SYSTEM_SELECTOR = ->(name, _data) { name.starts_with?('.') }
+        SYSTEM_SELECTOR = ->(name, _data) { name.start_with?('.') }
 
         # @param [Hash{String=>Hash}] indices A +Hash+ with the information
         #   about the indices. Its keys are the names of the indices, its values

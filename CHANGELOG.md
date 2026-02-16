@@ -8,6 +8,10 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+### Fixed
+- A `NoMethodError` that was being raised by `Elasticsearch::Stats::Indices`
+  when `active_support/core_ext/string` hadn't been loaded.
+
 ### Added
 - It is now possible to configure the type used by the `RSpec::TestDataCollector`
   class when pushing documents to Elasticsearch. If no type is specified in the

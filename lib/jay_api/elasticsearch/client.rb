@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'elasticsearch/api/namespace/tasks'
+require 'timeout'
 require 'elasticsearch/transport/transport/errors'
 require 'faraday/error'
 require 'forwardable'

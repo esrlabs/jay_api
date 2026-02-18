@@ -9,6 +9,8 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 ## [Unreleased]
 
 ### Fixed
+- A `NameError` that was being raised when `jay_api/elasticsearch/client` was
+  required without requiring `elasticsearch`.
 - A `NoMethodError` that was being raised by `Elasticsearch::Stats::Indices`
   when `active_support/core_ext/string` hadn't been loaded.
 

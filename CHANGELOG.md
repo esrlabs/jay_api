@@ -8,6 +8,8 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+## [29.5.0] - 2026-02-23
+
 ### Fixed
 - A `NameError` that was being raised when `jay_api/elasticsearch/client` was
   required without requiring `elasticsearch`.

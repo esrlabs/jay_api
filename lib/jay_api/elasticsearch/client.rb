@@ -10,7 +10,7 @@ require_relative 'stats'
 
 module JayAPI
   module Elasticsearch
-    # The JayAPI wrapper class over the Elastisearch::Client object. It mirrors
+    # The JayAPI wrapper class over the +Elasticsearch::Client+ object. It mirrors
     # the object's API, but if one of the ERRORS is raised, this Wrapper class will
     # rescue the error up to a few times and re-try the connection. This way the
     # connection to Elasticsearch will be more robust.

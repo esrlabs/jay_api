@@ -318,4 +318,27 @@ RSpec.describe JayAPI::Elasticsearch::Client do
       expect(method_call).to be(stats)
     end
   end
+
+  describe '#tasks' do
+    subject(:method_call) { client.tasks }
+
+    let(:tasks) do
+      instance_double(
+        JayAPI::Elasticsearch::Tasks
+      )
+    end
+
+    before do
+      allow(JayAPI::Elasticsearch::Tasks).to receive(:new).and_return(tasks)
+    end
+
+    it "initializes an instance of JayAPI::Elasticsearch::Tasks and passes a reference to 'self'" do
+      expect(JayAPI::Elasticsearch::Tasks).to receive(:new).with(client:)
+      method_call
+    end
+
+    it 'returns the JayAPI::Elasticsearch::Tasks instance' do
+      expect(method_call).to be(tasks)
+    end
+  end
 end

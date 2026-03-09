@@ -8,6 +8,11 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+### Added
+- The `#tasks` method to `JayAPI::Elasticsearch::Client`. The method returns an
+  instance of `JayAPI::Elasticsearch::Tasks`, which gives the user access to the
+  status of the tasks running on the Elasticsearch cluster.
+
 ## [29.5.0] - 2026-02-23
 
 ### Fixed

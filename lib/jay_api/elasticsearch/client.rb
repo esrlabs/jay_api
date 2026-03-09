@@ -7,6 +7,7 @@ require 'forwardable'
 
 require_relative '../abstract/connection'
 require_relative 'stats'
+require_relative 'tasks'
 
 module JayAPI
   module Elasticsearch
@@ -96,6 +97,13 @@ module JayAPI
       #   which gives the caller access to Elasticsearch's Statistics API.
       def stats
         @stats ||= ::JayAPI::Elasticsearch::Stats.new(transport_client)
+      end
+
+      # @return [JayAPI::Elasticsearch::Tasks] An instance of the +Tasks+ class,
+      #   which can be used to retrieve the status of the tasks running on the
+      #   Elasticsearch cluster.
+      def tasks
+        @tasks ||= ::JayAPI::Elasticsearch::Tasks.new(client: self)
       end
 
       private

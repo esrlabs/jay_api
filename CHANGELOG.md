@@ -8,6 +8,9 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+### Deprecated
+- The `#task_by_id` method of the `Elasticsearch::Client` class.
+
 ### Added
 - The `#tasks` method to `JayAPI::Elasticsearch::Client`. The method returns an
   instance of `JayAPI::Elasticsearch::Tasks`, which gives the user access to the

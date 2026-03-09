@@ -2,6 +2,9 @@
 
 require 'active_support'
 require 'active_support/core_ext/hash/indifferent_access'
+require 'forwardable'
+
+require_relative 'mixins/retriable_requests'
 
 module JayAPI
   module Elasticsearch
@@ -9,7 +12,12 @@ module JayAPI
     # currently executing in the cluster.
     # TODO: Add #all [JAY-593]
     class Tasks
+      extend Forwardable
+      include ::JayAPI::Elasticsearch::Mixins::RetriableRequests
+
       attr_reader :client
+
+      def_delegators :client, :transport_client, :max_attempts, :wait_strategy, :logger
 
       # @param [JayAPI::Elasticsearch::Client] client The Elasticsearch Client
       #   object
@@ -29,7 +37,9 @@ module JayAPI
       # @raise [Elasticsearch::Transport::Transport::ServerError] If the
       #   query fails.
       def by_id(task_id)
-        client.task_by_id(task_id: task_id, wait_for_completion: true).deep_symbolize_keys
+        retry_request do
+          transport_client.tasks.get(task_id:, wait_for_completion: true).deep_symbolize_keys
+        end
       end
     end
   end

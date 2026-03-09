@@ -72,6 +72,7 @@ module JayAPI
       # parameters. If the request fails, additional retries will be performed.
       # @see Elasticsearch::Client#tasks for more info about the arguments and
       #   the return value.
+      # @deprecated Use Tasks#by_id instead.
       def task_by_id(**args)
         retry_request { transport_client.tasks.get(**args) }
       end

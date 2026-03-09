@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'active_support'
+require 'active_support/core_ext/enumerable'
 require 'active_support/core_ext/hash/indifferent_access'
 require 'forwardable'
 
@@ -10,7 +11,6 @@ module JayAPI
   module Elasticsearch
     # Represents Elasticsearch tasks. Returns information about the tasks
     # currently executing in the cluster.
-    # TODO: Add #all [JAY-593]
     class Tasks
       extend Forwardable
       include ::JayAPI::Elasticsearch::Mixins::RetriableRequests
@@ -23,6 +23,28 @@ module JayAPI
       #   object
       def initialize(client:)
         @client = client
+      end
+
+      # Gets the list of tasks running on the Elasticsearch cluster.
+      # For more information about this endpoint and the parameters please see:
+      # https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-tasks-list
+      # @param [Array<String>] actions A list of actions. Only tasks matching
+      #   these actions will be returned, if no task matches the result will be
+      #   empty.
+      # @param [Boolean] detailed Whether or not the result should include task
+      #   details or not.
+      # @return [Hash] A hash with the list of tasks running on the
+      #   Elasticsearch cluster.
+      def all(actions: nil, detailed: false)
+        # Needed because unlike many Elasticsearch methods Tasks#list doesn't
+        # call #listify over +actions+.
+        actions = actions&.then do |value|
+          value.is_a?(Array) ? value.join(',') : value
+        end
+
+        retry_request do
+          tasks_client.list({ actions:, detailed: }.compact_blank)
+        end
       end
 
       # Retrieves info about the task with the passed +task_id+
@@ -38,8 +60,16 @@ module JayAPI
       #   query fails.
       def by_id(task_id)
         retry_request do
-          transport_client.tasks.get(task_id:, wait_for_completion: true).deep_symbolize_keys
+          tasks_client.get(task_id:, wait_for_completion: true).deep_symbolize_keys
         end
+      end
+
+      private
+
+      # @return [Elasticsearch::API::Tasks::TasksClient] The client used to
+      #   access tasks-related information.
+      def tasks_client
+        @tasks_client ||= transport_client.tasks
       end
     end
   end

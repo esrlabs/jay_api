@@ -12,6 +12,8 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 - The `#task_by_id` method of the `Elasticsearch::Client` class.
 
 ### Added
+- The `#all` method to `JayAPI::Elasticsearch::Tasks`. The method returns the
+  status of all running tasks on the Elasticsearch cluster.
 - The `#tasks` method to `JayAPI::Elasticsearch::Client`. The method returns an
   instance of `JayAPI::Elasticsearch::Tasks`, which gives the user access to the
   status of the tasks running on the Elasticsearch cluster.

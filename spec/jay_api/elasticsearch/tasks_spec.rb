@@ -5,9 +5,27 @@ require 'jay_api/elasticsearch/tasks'
 RSpec.describe JayAPI::Elasticsearch::Tasks do
   subject(:tasks) { described_class.new(client: client) }
 
+  let(:tasks_client) do
+    instance_double(
+      Elasticsearch::API::Tasks::TasksClient,
+      get: transport_response
+    )
+  end
+
+  let(:transport_client) do
+    instance_double(
+      Elasticsearch::Transport::Client,
+      tasks: tasks_client
+    )
+  end
+
   let(:client) do
     instance_double(
-      JayAPI::Elasticsearch::Client
+      JayAPI::Elasticsearch::Client,
+      logger: instance_double(Logging::Logger),
+      max_attempts: 10,
+      transport_client:,
+      wait_strategy: instance_double(JayAPI::Abstract::WaitStrategy)
     )
   end
 
@@ -16,7 +34,7 @@ RSpec.describe JayAPI::Elasticsearch::Tasks do
 
     let(:task_id) { 'B5oDyEsHQu2Q-wpbaMSMTg:577388264' }
 
-    let(:successful_response) do
+    let(:transport_response) do
       {
         'completed' => true,
         'task' => {
@@ -76,12 +94,14 @@ RSpec.describe JayAPI::Elasticsearch::Tasks do
       }
     end
 
-    before do
-      allow(client).to receive(:task_by_id).and_return(successful_response)
+    it 'gets the Transport::Client from the given Client' do
+      expect(client).to receive(:transport_client).ordered
+      expect(transport_client).to receive(:tasks).ordered
+      method_call
     end
 
-    it 'relays the command to the Elasticsearch client' do
-      expect(client).to receive(:task_by_id).with(task_id: task_id, wait_for_completion: true)
+    it 'uses the TasksClient to fetch the task with the given ID' do
+      expect(tasks_client).to receive(:get).with(task_id:, wait_for_completion: true).ordered
       method_call
     end
 
@@ -160,7 +180,7 @@ RSpec.describe JayAPI::Elasticsearch::Tasks do
       end
 
       before do
-        allow(client).to receive(:task_by_id).and_raise(*error)
+        allow(tasks_client).to receive(:get).and_raise(*error)
       end
 
       it 're-raises the error' do

@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
 require 'timeout'
-require 'elasticsearch/transport/transport/errors'
 require 'faraday/error'
 require 'forwardable'
 
-require_relative '../abstract/connection'
+require_relative 'mixins/retriable_requests'
 require_relative 'stats'
 require_relative 'tasks'
 
@@ -18,23 +17,7 @@ module JayAPI
     class Client
       extend Forwardable
 
-      # The errors that, if raised, must cause a retry of the connection.
-      ERRORS = [
-        ::Elasticsearch::Transport::Transport::ServerError,
-        Faraday::TimeoutError
-      ].freeze
-
-      # Subclasses of the +Elasticsearch::Transport::Transport::ServerError+
-      # for which a retry doesn't make sense.
-      NON_RETRIABLE_ERRORS = [
-        ::Elasticsearch::Transport::Transport::Errors::BadRequest,
-        ::Elasticsearch::Transport::Transport::Errors::Unauthorized,
-        ::Elasticsearch::Transport::Transport::Errors::Forbidden,
-        ::Elasticsearch::Transport::Transport::Errors::NotFound,
-        ::Elasticsearch::Transport::Transport::Errors::MethodNotAllowed,
-        ::Elasticsearch::Transport::Transport::Errors::RequestEntityTooLarge,
-        ::Elasticsearch::Transport::Transport::Errors::NotImplemented
-      ].freeze
+      include JayAPI::Elasticsearch::Mixins::RetriableRequests
 
       attr_reader :transport_client, :logger, :max_attempts, :wait_strategy
 
@@ -104,15 +87,6 @@ module JayAPI
       #   Elasticsearch cluster.
       def tasks
         @tasks ||= ::JayAPI::Elasticsearch::Tasks.new(client: self)
-      end
-
-      private
-
-      # @param [Proc] block The block to execute.
-      # @yieldreturn [Object] Whatever the block returns
-      def retry_request(&block)
-        Abstract::Connection.new(max_attempts: max_attempts, wait_strategy: wait_strategy.dup, logger: logger)
-                            .retry(errors: ERRORS, except: NON_RETRIABLE_ERRORS, &block)
       end
     end
   end

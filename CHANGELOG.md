@@ -8,6 +8,8 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+## [29.6.0] - 2026-03-16
+
 ### Deprecated
 - The `#task_by_id` method of the `Elasticsearch::Client` class.
 

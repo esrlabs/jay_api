@@ -40,7 +40,7 @@ module JayAPI
       #   failures
       def delete_by_query(query, slices: 5)
         Concurrent::Promise.execute do
-          async_response = index.delete_by_query(query, slices: slices, wait_for_completion: false)
+          async_response = index.delete_by_query(query, slices:, wait_for_completion: false)
           result = tasks.by_id(async_response[:task])
           validate_result(result)
           result
@@ -49,6 +49,14 @@ module JayAPI
 
       private
 
+
+
+
+
+
+
+
+
       # @param [Hash] result The operation result to be validated
       # @raise [Errors::QueryExecutionError] If executing the query results in
       #   errors
@@ -56,7 +64,6 @@ module JayAPI
       #   failures
       def validate_result(result)
         raise Errors::QueryExecutionError, "Errors on index '#{index_name}':\n #{result[:error]}" if result[:error]
-
         failures = result&.dig(:response, :failures)
         return if failures.nil? || failures.empty?
 

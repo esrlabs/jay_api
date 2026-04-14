@@ -8,6 +8,10 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+### Added
+- The `Elasticsearch::Cluster` class. The class gives the user access to
+  cluster-level endpoints, currently including cluster health.
+
 ## [29.6.0] - 2026-03-16
 
 ### Deprecated

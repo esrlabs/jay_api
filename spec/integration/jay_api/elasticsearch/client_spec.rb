@@ -341,4 +341,27 @@ RSpec.describe JayAPI::Elasticsearch::Client do
       expect(method_call).to be(tasks)
     end
   end
+
+  describe '#cluster' do
+    subject(:method_call) { client.cluster }
+
+    let(:cluster) do
+      instance_double(
+        JayAPI::Elasticsearch::Cluster
+      )
+    end
+
+    before do
+      allow(JayAPI::Elasticsearch::Cluster).to receive(:new).and_return(cluster)
+    end
+
+    it 'initializes an instance of JayAPI::Elasticsearch::Cluster and passes the transport client to it' do
+      expect(JayAPI::Elasticsearch::Cluster).to receive(:new).with(transport_client)
+      method_call
+    end
+
+    it 'returns the JayAPI::Elasticsearch::Cluster instance' do
+      expect(method_call).to be(cluster)
+    end
+  end
 end

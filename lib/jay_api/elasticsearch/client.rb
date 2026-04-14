@@ -5,6 +5,7 @@ require 'faraday/error'
 require 'forwardable'
 
 require_relative 'mixins/retriable_requests'
+require_relative 'cluster'
 require_relative 'stats'
 require_relative 'tasks'
 
@@ -88,6 +89,12 @@ module JayAPI
       #   Elasticsearch cluster.
       def tasks
         @tasks ||= ::JayAPI::Elasticsearch::Tasks.new(client: self)
+      end
+
+      # @return [JayAPI::Elasticsearch::Cluster] An instance of the +Cluster+
+      #   class, which gives the caller access to cluster-related endpoints.
+      def cluster
+        @cluster ||= ::JayAPI::Elasticsearch::Cluster.new(transport_client)
       end
     end
   end

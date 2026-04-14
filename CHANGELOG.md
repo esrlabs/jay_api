@@ -9,6 +9,8 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 ## [Unreleased]
 
 ### Added
+- The `#cluster` method to `JayAPI::Elasticsearch::Client`. The method returns
+  an instance of `JayAPI::Elasticsearch::Cluster`.
 - The `Elasticsearch::Cluster` class. The class gives the user access to
   cluster-level endpoints, currently including cluster health.
 

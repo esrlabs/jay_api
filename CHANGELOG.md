@@ -8,6 +8,8 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+## [29.7.0] - 2026-04-28
+
 ### Added
 - The `#cluster` method to `JayAPI::Elasticsearch::Client`. The method returns
   an instance of `JayAPI::Elasticsearch::Cluster`.

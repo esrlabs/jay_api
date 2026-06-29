@@ -13,6 +13,7 @@ Please mark backwards incompatible changes with an exclamation mark at the start
   use `Elasticsearch::Script` instead.
 
 ### Added
+- The `#update` method to `JayAPI::Elasticsearch::Client`.
 - The `QueryClauses::IDs` class and the corresponding `#ids` method to the
   `MatchClauses` module. This allows the use of Elasticsearch's
   [ids](https://www.elastic.co/docs/reference/query-languages/query-dsl/query-dsl-ids-query)

@@ -96,6 +96,14 @@ module JayAPI
       def cluster
         @cluster ||= ::JayAPI::Elasticsearch::Cluster.new(transport_client)
       end
+
+      # Calls the +Elasticsearch::Client+'s #update method forwarding the given
+      # parameters. If the request fails, additional retries will be performed.
+      # @see Elasticsearch::API::Actions#update for more info about the
+      #   arguments and the return value.
+      def update(**args)
+        retry_request { transport_client.update(**args) }
+      end
     end
   end
 end

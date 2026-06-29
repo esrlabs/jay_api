@@ -205,6 +205,178 @@ RSpec.describe JayAPI::Elasticsearch::Index do
     it_behaves_like 'Indexable#validate_type'
   end
 
+  describe '#update' do
+    subject(:method_call) { index.update(id:, **method_params) }
+
+    let(:id) { 'ns4AAZ8BXEjZhYMmw-8y' }
+
+    let(:method_params) { {} }
+
+    let(:successful_response) do
+      {
+        '_index' => 'elite_unit_tests',
+        '_type' => 'nested',
+        '_id' => 'ns4AAZ8BXEjZhYMmw-8y',
+        '_version' => 7,
+        'result' => 'updated',
+        '_shards' => { 'total' => 2, 'successful' => 2, 'failed' => 0 },
+        '_seq_no' => 11,
+        '_primary_term' => 1
+      }
+    end
+
+    before do
+      allow(client).to receive(:update).and_return(successful_response)
+    end
+
+    shared_examples_for '#update when the update fails' do
+      let(:error) do
+        [
+          Elasticsearch::Transport::Transport::Errors::BadRequest,
+          '400 - Bad Request'
+        ]
+      end
+
+      before do
+        allow(client).to receive(:update).and_raise(*error)
+      end
+
+      it 'raises an Elasticsearch::Transport::Transport::ServerError' do
+        expect { method_call }.to raise_error(*error)
+      end
+    end
+
+    context 'when neither doc nor script are provided' do
+      let(:method_params) { {} }
+
+      it 'raises an ArgumentError' do
+        expect { method_call }.to raise_error(
+          ArgumentError,
+          "Either 'doc' or 'script' must be provided"
+        )
+      end
+    end
+
+    context 'when a doc is provided' do
+      let(:doc) do
+        {
+          test_case: {
+            updated_at: '2026/06/30 09:54:27',
+            valid: false,
+            reason: 'The test case was invalidated due to a new firmware update'
+          }
+        }
+      end
+
+      let(:method_params) { { doc: } }
+
+      let(:expected_parameters) do
+        {
+          index: 'elite_unit_tests',
+          id: 'ns4AAZ8BXEjZhYMmw-8y',
+          body: { doc: doc }
+        }
+      end
+
+      it 'calls #update on the client with the expected parameters' do
+        expect(client).to receive(:update).with(expected_parameters)
+        method_call
+      end
+
+      context 'when the update fails' do
+        it_behaves_like '#update when the update fails'
+      end
+
+      it 'returns the expected Hash' do
+        expect(method_call).to eq(successful_response)
+      end
+    end
+
+    context 'when a script is provided' do
+      let(:script_hash) do
+        {
+          source: 'ctx._source.test_case.execution_count += params.delta;',
+          lang: 'painless',
+          params: { delta: 2 }
+        }
+      end
+
+      let(:script) do
+        instance_double(
+          JayAPI::Elasticsearch::Script,
+          to_h: script_hash
+        )
+      end
+
+      let(:method_params) { { script: } }
+
+      let(:expected_parameters) do
+        {
+          index: 'elite_unit_tests',
+          id: 'ns4AAZ8BXEjZhYMmw-8y',
+          body: { script: script_hash }
+        }
+      end
+
+      it 'calls #update on the client with the expected parameters' do
+        expect(client).to receive(:update).with(expected_parameters)
+        method_call
+      end
+
+      context 'when the update fails' do
+        it_behaves_like '#update when the update fails'
+      end
+
+      it 'returns the expected Hash' do
+        expect(method_call).to eq(successful_response)
+      end
+    end
+
+    context 'when both doc and script are provided' do
+      let(:doc) do
+        { test_case: { owner: 'robert.smith' } }
+      end
+
+      let(:script_hash) do
+        {
+          source: 'ctx._source.test_case.owner = params.owner;',
+          lang: 'painless',
+          params: { owner: 'robert.smith' }
+        }
+      end
+
+      let(:script) do
+        instance_double(
+          JayAPI::Elasticsearch::Script,
+          to_h: script_hash
+        )
+      end
+
+      let(:method_params) { { doc:, script: } }
+
+      let(:expected_parameters) do
+        {
+          index: 'elite_unit_tests',
+          id: 'ns4AAZ8BXEjZhYMmw-8y',
+          body: { doc: doc, script: script_hash }
+        }
+      end
+
+      it "calls #update on the client with the expected parameters (forwards both 'doc' and 'script')" do
+        expect(client).to receive(:update).with(expected_parameters)
+        method_call
+      end
+
+      context 'when the update fails' do
+        it_behaves_like '#update when the update fails'
+      end
+
+      it 'returns the expected Hash' do
+        expect(method_call).to eq(successful_response)
+      end
+    end
+  end
+
   describe '#settings' do
     subject(:method_call) { index.settings }
 

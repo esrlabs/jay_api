@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'active_support'
+require 'active_support/core_ext/object/blank'
+
 require_relative 'indexable'
 require_relative 'indices/settings'
 require_relative 'errors/writable_index_error'
@@ -50,6 +53,46 @@ module JayAPI
       # https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-index_.html#docs-index-api-response-body
       def index(data, type: DEFAULT_DOC_TYPE)
         super.first
+      end
+
+      # Updates a document by ID.
+      # @param [String] id The ID of the document to update.
+      # @param [Hash, nil] doc The partial document to update the existing
+      #   document with. If +nil+ is given, the +script+ parameter must be
+      #   provided. If both +doc+ and +script+ are given, the +doc+ parameter
+      #   will be ignored by Elasticsearch.
+      # @param [JayAPI::Elasticsearch::Script, Hash, nil] script The script to
+      #   update the existing document with. If +nil+ is given, the +doc+
+      #   parameter must be provided. It's recommended to use a
+      #   +JayAPI::Elasticsearch::Script+ object, but a Hash can also be used.
+      # @return [Hash] A Hash containing information about the updated document.
+      #   An example of such Hash is:
+      #
+      #  {
+      #     "_index" : "xyz01_build_properties",
+      #     "_type" : "_doc",
+      #     "_id" : "ns4AAZ8BXEjZhYMmw-8y",
+      #     "_version" : 7,
+      #     "result" : "updated",
+      #     "_shards" : {
+      #       "total" : 2,
+      #       "successful" : 2,
+      #       "failed" : 0
+      #     },
+      #     "_seq_no" : 11,
+      #     "_primary_term" : 1
+      #   }
+      #
+      # For information on how to use the script and about the contents of the
+      # returned Hash please see:
+      # https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-update
+      # @raise [ArgumentError] If both +doc+ and +script+ are +nil+.
+      # @raise [Elasticsearch::Transport::Transport::ServerError] If the
+      #   update fails.
+      def update(id:, doc: nil, script: nil)
+        raise ArgumentError, "Either 'doc' or 'script' must be provided" if doc.blank? && script.blank?
+
+        client.update(index: index_name, id:, body: { doc: doc, script: script&.to_h }.compact)
       end
 
       # @return [JayAPI::Elasticsearch::Indices::Settings] The settings for the

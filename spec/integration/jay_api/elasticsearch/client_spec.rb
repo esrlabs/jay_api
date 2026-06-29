@@ -364,4 +364,21 @@ RSpec.describe JayAPI::Elasticsearch::Client do
       expect(method_call).to be(cluster)
     end
   end
+
+  describe '#update' do
+    let(:method_name) { :update }
+
+    let(:client_method_arguments) do
+      {
+        index: 'xyz01_integration_test',
+        id: 'ns4AAZ8BXEjZhYMmw-8y',
+        body: { doc: { test_case: { owner: 'alice.wolf' } } }
+      }
+    end
+
+    let(:used_client) { transport_client }
+    let(:client_method_name) { :update }
+
+    it_behaves_like 'JayAPI::Elasticsearch::Client#<any_method>'
+  end
 end

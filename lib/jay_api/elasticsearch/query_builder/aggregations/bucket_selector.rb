@@ -19,8 +19,8 @@ module JayAPI
           #   The keys are the names of the script variables, the values the
           #   paths to the metrics (relative to the parent aggregation).
           #   The script will receive these variables in its +params+.
-          # @param [JayAPI::Elasticsearch::QueryBuilder::Script] script
-          #   Script used to decide whether to keep each bucket.
+          # @param [JayAPI::Elasticsearch::Script] script Script used to decide
+          #   whether to keep each bucket.
           # @param [String, nil] gap_policy Optional gap policy (e.g. "skip",
           #   "insert_zeros").
           def initialize(name, buckets_path:, script:, gap_policy: nil)

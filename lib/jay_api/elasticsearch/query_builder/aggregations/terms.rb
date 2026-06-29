@@ -19,10 +19,9 @@ module JayAPI
           # @param [String] name The name used by Elasticsearch to identify each
           #   of the aggregations.
           # @param [String] field The field whose unique values should be counted.
-          # @param [JayAPI::Elasticsearch::QueryBuilder::Script] script If a
-          #   script is given the aggregation will count the unique values
-          #   returned by the script instead of the unique values in a specific
-          #   field.
+          # @param [JayAPI::Elasticsearch::Script] script If a script is given
+          #   the aggregation will count the unique values returned by the
+          #   script instead of the unique values in a specific field.
           # @param [Integer] size By default the aggregation returns the top 10
           #   unique values (the ones with the higher frequency). By specifying
           #   a size this can be changed.

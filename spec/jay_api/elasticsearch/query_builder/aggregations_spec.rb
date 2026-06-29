@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'jay_api/elasticsearch/query_builder/aggregations'
-require 'jay_api/elasticsearch/query_builder/script'
+require 'jay_api/elasticsearch/script'
 
 RSpec.describe JayAPI::Elasticsearch::QueryBuilder::Aggregations do
   subject(:aggregations) { described_class.new }
@@ -120,7 +120,7 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::Aggregations do
 
       let(:script) do
         instance_double(
-          JayAPI::Elasticsearch::QueryBuilder::Script
+          JayAPI::Elasticsearch::Script
         )
       end
 
@@ -519,7 +519,7 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::Aggregations do
 
     let(:script) do
       instance_double(
-        JayAPI::Elasticsearch::QueryBuilder::Script
+        JayAPI::Elasticsearch::Script
       )
     end
 

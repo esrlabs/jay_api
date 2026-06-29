@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'jay_api/elasticsearch/query_builder/script'
+require 'jay_api/elasticsearch/script'
 
-RSpec.describe JayAPI::Elasticsearch::QueryBuilder::Script do
+RSpec.describe JayAPI::Elasticsearch::Script do
   subject(:script) { described_class.new(**constructor_params) }
 
   let(:source) do

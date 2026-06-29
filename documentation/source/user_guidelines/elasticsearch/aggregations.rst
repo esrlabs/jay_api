@@ -326,7 +326,7 @@ The code above would produce the following query:
 
    These scripts **must** be simple strings, they do not follow the pattern of
    other scripted elements in Elasticsearch's DSL. Do not use
-   ``QueryBuilder::Script`` objects here. Their use will produce unintended
+   ``Elasticsearch::Script`` objects here. Their use will produce unintended
    results.
 
 composite
@@ -396,7 +396,7 @@ Code example:
      aggs.sum('total_sales', field: 'price')
      aggs.bucket_selector(
        'sales_bucket_filter', buckets_path: { totalSales: 'total_sales' },
-                              script: JayAPI::Elasticsearch::QueryBuilder::Script.new(source: 'params.totalSales > 200')
+                              script: JayAPI::Elasticsearch::Script.new(source: 'params.totalSales > 200')
      )
    end
 

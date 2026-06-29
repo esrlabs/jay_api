@@ -8,6 +8,10 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+### Deprecated
+- The `Elasticsearch::QueryBuilder::Script` class is now deprecated, please
+  use `Elasticsearch::Script` instead.
+
 ### Added
 - The `QueryClauses::IDs` class and the corresponding `#ids` method to the
   `MatchClauses` module. This allows the use of Elasticsearch's

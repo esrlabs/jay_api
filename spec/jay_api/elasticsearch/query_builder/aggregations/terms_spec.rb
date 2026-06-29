@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'jay_api/elasticsearch/query_builder/aggregations/terms'
-require 'jay_api/elasticsearch/query_builder/script'
+require 'jay_api/elasticsearch/script'
 
 require_relative 'aggregation_shared'
 
@@ -13,7 +13,7 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::Aggregations::Terms do
 
   let(:script) do
     instance_double(
-      JayAPI::Elasticsearch::QueryBuilder::Script,
+      JayAPI::Elasticsearch::Script,
       to_h: {
         source: <<~PAINLESS,
           String genre = doc['genre'].value;
@@ -107,7 +107,7 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::Aggregations::Terms do
     end
 
     context "when a 'script' has been given" do
-      let(:script) { instance_double(JayAPI::Elasticsearch::QueryBuilder::Script) }
+      let(:script) { instance_double(JayAPI::Elasticsearch::Script) }
 
       before do
         constructor_params.delete(:field)

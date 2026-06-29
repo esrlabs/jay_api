@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'jay_api/elasticsearch/query_builder/aggregations/bucket_selector'
-require 'jay_api/elasticsearch/query_builder/script'
+require 'jay_api/elasticsearch/script'
 
 require_relative 'aggregation_shared'
 
@@ -16,7 +16,7 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::Aggregations::BucketSelector
 
   let(:script) do
     instance_double(
-      JayAPI::Elasticsearch::QueryBuilder::Script,
+      JayAPI::Elasticsearch::Script,
       to_h: {
         source: 'params.avgPrice > params.threshold',
         lang: 'painless',

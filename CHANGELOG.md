@@ -8,6 +8,8 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+## [29.8.0] - 2026-07-06
+
 ### Deprecated
 - The `Elasticsearch::QueryBuilder::Script` class is now deprecated, please
   use `Elasticsearch::Script` instead.

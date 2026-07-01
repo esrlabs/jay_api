@@ -8,6 +8,12 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+### Added
+- The `QueryClauses::IDs` class and the corresponding `#ids` method to the
+  `MatchClauses` module. This allows the use of Elasticsearch's
+  [ids](https://www.elastic.co/docs/reference/query-languages/query-dsl/query-dsl-ids-query)
+  query with the Query Builder.
+
 ## [29.7.0] - 2026-04-28
 
 ### Added

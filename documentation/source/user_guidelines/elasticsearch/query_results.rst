@@ -8,8 +8,8 @@ class takes care of requesting the results in batches for you and it works
 seamlessly with or without `Elasticsearch's Scroll API`_ enabled.
 
 You do not need to create instances of this class yourself, instead you'll get
-them as return value when you use the :ref:`Index#search` method of the
-:doc:`index` class:
+them as return value when you use the :ref:`Indexable#search` method of the
+:doc:`indexable` mixin:
 
 .. code-block:: ruby
 
@@ -99,7 +99,7 @@ batch of documents if you reach the end of the current batch.
 #aggregations
 *************
 
-If the query you passed to the :ref:`Index#search` method contains any
+If the query you passed to the :ref:`Indexable#search` method contains any
 Aggregations_ they will show up here.
 
 Example:

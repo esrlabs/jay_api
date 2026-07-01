@@ -453,6 +453,17 @@ A `Regexp Query`_ will match documents that satisfies the specified pattern
     search engine. To match a term, the regular expression must match the entire
     string.
 
+ids
++++
+
+An `IDs Query`_ will match documents that have the given IDs in their ``_id``
+field.
+
+.. code-block:: ruby
+
+   # The documents matching the given IDs will be matched
+   query_builder.query.ids(ids: %w[eSO6FZ8BUAdcYcWLRszq of2yFZ8BXEjZhYMm9Goe w1KlFZ8BK-fBiJSF1ptV])
+
 #merge
 ------
 
@@ -535,4 +546,5 @@ Example:
 .. _`Range Query`: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-range-query.html
 .. _`Terms Query`: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-terms-query.html
 .. _`Regexp Query`: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-regexp-query.html
+.. _`IDs Query`: https://www.elastic.co/docs/reference/query-languages/query-dsl/query-dsl-ids-query
 .. _`Sort search results`: https://www.elastic.co/docs/reference/elasticsearch/rest-apis/sort-search-results

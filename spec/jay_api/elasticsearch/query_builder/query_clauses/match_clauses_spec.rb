@@ -27,6 +27,26 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::QueryClauses::MatchClauses d
       method_call
       expect(test_instance).to include(clause_instance)
     end
+
+    context 'when an error occurs while adding the query clause to the set' do
+      let(:test_class) do
+        Class.new(Array) do
+          include JayAPI::Elasticsearch::QueryBuilder::QueryClauses::MatchClauses
+
+          def <<(_clause)
+            raise JayAPI::Elasticsearch::QueryBuilder::Errors::QueryBuilderError,
+                  'A boolean clause has been defined but no boolean sub-clauses were added'
+          end
+        end
+      end
+
+      it 'raises a JayAPI::Elasticsearch::QueryBuilder::Errors::QueryBuilderError' do
+        expect { method_call }.to raise_error(
+          JayAPI::Elasticsearch::QueryBuilder::Errors::QueryBuilderError,
+          'A boolean clause has been defined but no boolean sub-clauses were added'
+        )
+      end
+    end
   end
 
   describe '#match_phrase' do
@@ -105,6 +125,16 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::QueryClauses::MatchClauses d
     let(:params) { { field: 'sut_revision.keyword', value: '[0-9]{2}-[0-9]{2}-[0-9]{2}/.*' } }
 
     let(:clause_class) { JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Regexp }
+
+    it_behaves_like '#match_phrase'
+  end
+
+  describe '#ids' do
+    subject(:method_call) { test_instance.ids(**params) }
+
+    let(:params) { { ids: %w[1 4 100] } }
+
+    let(:clause_class) { JayAPI::Elasticsearch::QueryBuilder::QueryClauses::IDs }
 
     it_behaves_like '#match_phrase'
   end

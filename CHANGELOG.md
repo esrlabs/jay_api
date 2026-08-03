@@ -8,6 +8,8 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+## [29.9.0] - 2026-08-04
+
 ### Added
 - The `JayAPI::Elasticsearch::Count` class.
 - The `#count` method to the `Indexable` module. The method returns the number

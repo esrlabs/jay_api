@@ -381,4 +381,32 @@ RSpec.describe JayAPI::Elasticsearch::Client do
 
     it_behaves_like 'JayAPI::Elasticsearch::Client#<any_method>'
   end
+
+  describe '#count' do
+    let(:method_name) { :count }
+
+    let(:used_client) { transport_client }
+    let(:client_method_name) { :count }
+
+    context 'when no query is provided' do
+      let(:client_method_arguments) do
+        {
+          index: 'xyz01_integration_test'
+        }
+      end
+
+      it_behaves_like 'JayAPI::Elasticsearch::Client#<any_method>'
+    end
+
+    context 'when a query is provided' do
+      let(:client_method_arguments) do
+        {
+          index: 'xyz01_integration_test',
+          body: { query: { match_all: {} } }
+        }
+      end
+
+      it_behaves_like 'JayAPI::Elasticsearch::Client#<any_method>'
+    end
+  end
 end

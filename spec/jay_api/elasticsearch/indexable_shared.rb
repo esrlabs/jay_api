@@ -381,3 +381,72 @@ RSpec.shared_examples_for 'Indexable#delete_by_query_async' do
     expect(method_call).to eq(response)
   end
 end
+
+RSpec.shared_examples_for 'Indexable#count' do
+  context 'when the request fails' do
+    let(:error) do
+      [
+        Elasticsearch::Transport::Transport::Errors::NotFound,
+        '[404] Index Not Found'
+      ]
+    end
+
+    before do
+      allow(client).to receive(:count).and_raise(*error)
+    end
+
+    it 're-raises the error' do
+      expect { method_call }.to raise_error(*error)
+    end
+  end
+
+  context 'when the request succeeds' do
+    let(:count) do
+      instance_double(
+        JayAPI::Elasticsearch::Count
+      )
+    end
+
+    let(:response) do
+      {
+        'count' => 10,
+        '_shards' => { 'total' => 5, 'successful' => 5, 'skipped' => 0, 'failed' => 0 }
+      }
+    end
+
+    before do
+      allow(JayAPI::Elasticsearch::Count).to receive(:new).and_return(count)
+      allow(client).to receive(:count).and_return(response)
+    end
+
+    it 'creates a new instance of the Count class and passes the response' do
+      expect(JayAPI::Elasticsearch::Count).to receive(:new).with(response)
+      method_call
+    end
+
+    it 'returns the Count object' do
+      expect(method_call).to be(count)
+    end
+  end
+end
+
+RSpec.shared_examples_for 'Indexable#count when no query is given' do
+  it 'calls #count on the client with the expected parameters' do
+    expect(client).to receive(:count).with(index: expected_index_names)
+    method_call
+  end
+
+  it_behaves_like 'Indexable#count'
+end
+
+RSpec.shared_examples_for 'Indexable#count when a query is given' do
+  it 'calls #count on the client with the expected parameters' do
+    expect(client).to receive(:count).with(
+      index: expected_index_names, body: { query: expected_query }
+    )
+
+    method_call
+  end
+
+  it_behaves_like 'Indexable#count'
+end

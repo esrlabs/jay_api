@@ -53,6 +53,22 @@ module JayAPI
         retry_request { transport_client.search(**args) }
       end
 
+      # Calls Elasticsearch::Client's #count method and retries the connection
+      # a few times when certain Elasticsearch::Error::ServerError are raised.
+      # @see Elasticsearch::API::Cat::Actions#count for information about the
+      #   required arguments.
+      # @return [Hash] The response from Elasticsearch, which contains the count
+      #   of documents in the index matching the given query (if any). An
+      #   example of this response is shown below:
+      #
+      #   {
+      #     "count" => 24097688,
+      #     "_shards" => { "total"=>5, "successful"=>5, "skipped"=>0, "failed"=>0 }
+      #   }
+      def count(**args)
+        retry_request { transport_client.count(**args) }
+      end
+
       # Calls the Elasticsearch::Client's #bulk method and retries the connection a few times if
       # a ServerError occurs.
       # @see Elasticsearch::Client#index for information about the arguments and the returned value.

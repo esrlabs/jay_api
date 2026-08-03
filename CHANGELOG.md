@@ -8,6 +8,12 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+### Added
+- The `JayAPI::Elasticsearch::Count` class.
+- The `#count` method to the `Indexable` module. The method returns the number
+  of documents in the `Index` or `Indexes`. A query can be provided to filter
+  the documents that are counted.
+
 ## [29.8.0] - 2026-07-06
 
 ### Deprecated

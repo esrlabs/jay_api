@@ -655,6 +655,42 @@ RSpec.describe JayAPI::Elasticsearch::Index do
     it_behaves_like 'Indexable#search'
   end
 
+  describe '#count' do
+    subject(:method_call) { index.count(**method_params) }
+
+    let(:expected_index_names) { [index_name] }
+
+    context 'when no query is given' do
+      let(:method_params) { {} }
+
+      it_behaves_like 'Indexable#count when no query is given'
+    end
+
+    context 'when a query is given' do
+      let(:method_params) do
+        {
+          query: {
+            range: {
+              field: 'test_case.finished_at',
+              gte: '2024/02/07 18:00:00'
+            }
+          }
+        }
+      end
+
+      let(:expected_query) do
+        {
+          range: {
+            field: 'test_case.finished_at',
+            gte: '2024/02/07 18:00:00'
+          }
+        }
+      end
+
+      it_behaves_like 'Indexable#count when a query is given'
+    end
+  end
+
   describe '#delete_by_query' do
     subject(:method_call) { index.delete_by_query(query, **method_params) }
 

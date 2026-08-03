@@ -8,6 +8,7 @@ require 'logging'
 
 require_relative 'async'
 require_relative 'batch_counter'
+require_relative 'count'
 require_relative 'errors/elasticsearch_error'
 require_relative 'query_results'
 require_relative 'response'
@@ -104,6 +105,18 @@ module JayAPI
           raise
         end
         query_results(query, response, batch_counter, type)
+      end
+
+      # @return [JayAPI::Elasticsearch::Count] The count of documents in the
+      #   index(es) matching the given query (if any).
+      # @raise [Elasticsearch::Transport::Transport::ServerError] If the
+      #   query or the connection to Elasticsearch fail.
+      def count(query: nil)
+        body = query ? { query: query } : nil
+
+        JayAPI::Elasticsearch::Count.new(
+          client.count(**{ index: index_names, body: body }.compact)
+        )
       end
 
       # Sends whatever is currently in the send queue to the Elasticsearch

@@ -8,6 +8,13 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+### Added
+- The `JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Prefix` class and the
+  corresponding `#prefix` method to the `MatchClauses` module. This allows the
+  use of Elasticsearch's
+  [prefix](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-prefix-query.html)
+  query with the Query Builder.
+
 ## [29.9.0] - 2026-08-04
 
 ### Added

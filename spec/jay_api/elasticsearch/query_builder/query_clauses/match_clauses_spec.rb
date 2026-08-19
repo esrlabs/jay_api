@@ -59,6 +59,16 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::QueryClauses::MatchClauses d
     it_behaves_like '#match_phrase'
   end
 
+  describe '#prefix' do
+    subject(:method_call) { test_instance.prefix(**params) }
+
+    let(:params) { { field: 'test_case.name', value: 'Networking/CAN0' } }
+
+    let(:clause_class) { JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Prefix }
+
+    it_behaves_like '#match_phrase'
+  end
+
   describe '#query_string' do
     subject(:method_call) { test_instance.query_string(**params) }
 

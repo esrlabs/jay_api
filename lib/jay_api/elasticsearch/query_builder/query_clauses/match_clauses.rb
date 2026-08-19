@@ -5,6 +5,7 @@ require_relative 'ids'
 require_relative 'match_all'
 require_relative 'match_none'
 require_relative 'match_phrase'
+require_relative 'prefix'
 require_relative 'query_string'
 require_relative 'range'
 require_relative 'regexp'
@@ -29,6 +30,16 @@ module JayAPI
           #   If an error occurs when trying to add the query clause to the set.
           def match_phrase(**params)
             self << ::JayAPI::Elasticsearch::QueryBuilder::QueryClauses::MatchPhrase.new(**params)
+          end
+
+          # Adds a +JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Prefix+
+          # clause to the Query Clauses set.
+          # @param [Hash] params The parameters for the +Prefix+ class.
+          # @return [self] Returns itself so that other methods can be chained.
+          # @raise [JayAPI::Elasticsearch::QueryBuilder::Errors::QueryBuilderError]
+          #   If an error occurs when trying to add the query clause to the set.
+          def prefix(**params)
+            self << ::JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Prefix.new(**params)
           end
 
           # Adds a +JayAPI::Elasticsearch::QueryBuilder::QueryClauses::QueryString+

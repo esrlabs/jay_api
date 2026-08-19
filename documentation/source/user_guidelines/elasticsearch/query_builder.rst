@@ -334,6 +334,18 @@ Example:
 
    query_builder.query.match_none
 
+prefix
+++++++
+
+A `Prefix Query`_ allows you to find documents in which one of the fields
+starts with the given prefix.
+
+Example:
+
+.. code-block:: ruby
+
+  query_builder.query.prefix(field: 'user.id', value: "ki")
+
 query_string
 ++++++++++++
 
@@ -539,6 +551,7 @@ Example:
 .. _`Match Phrase Query`: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query-phrase.html#query-dsl-match-query-phrase
 .. _`Match All`: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-all-query.html
 .. _`Match None`: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-all-query.html#query-dsl-match-none-query
+.. _`Prefix Query`: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-prefix-query.html
 .. _`Query String Query`: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html
 .. _`Wildcard Query`: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-wildcard-query.html
 .. _`Exists Query`: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-exists-query.html

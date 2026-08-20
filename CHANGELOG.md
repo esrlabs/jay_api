@@ -8,6 +8,8 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+## [29.10.0] - 2026-08-21
+
 ### Added
 - The `JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Prefix` class and the
   corresponding `#prefix` method to the `MatchClauses` module. This allows the

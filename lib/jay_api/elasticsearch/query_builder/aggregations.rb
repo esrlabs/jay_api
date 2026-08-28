@@ -70,8 +70,8 @@ module JayAPI
 
         # Adds a +top_hits+ type aggregation. For more information about the parameters
         # @see JayAPI::Elasticsearch::QueryBuilder::Aggregations::TopHits#initialize
-        def top_hits(name, size:)
-          add(::JayAPI::Elasticsearch::QueryBuilder::Aggregations::TopHits.new(name, size: size))
+        def top_hits(name, **params)
+          add(::JayAPI::Elasticsearch::QueryBuilder::Aggregations::TopHits.new(name, **params))
         end
 
         # Adds an +scripted_metric+ type aggregation. For information about the parameters

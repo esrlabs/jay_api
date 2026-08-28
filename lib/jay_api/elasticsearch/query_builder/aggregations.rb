@@ -32,11 +32,9 @@ module JayAPI
 
         # Adds a +terms+ type aggregation. For information about the parameters
         # @see JayAPI::Elasticsearch::QueryBuilder::Aggregations::Terms#initialize
-        def terms(name, field: nil, script: nil, size: nil, order: nil)
+        def terms(name, **params)
           add(
-            ::JayAPI::Elasticsearch::QueryBuilder::Aggregations::Terms.new(
-              name, field: field, script: script, size: size, order: order
-            )
+            ::JayAPI::Elasticsearch::QueryBuilder::Aggregations::Terms.new(name, **params)
           )
         end
 

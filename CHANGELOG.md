@@ -8,6 +8,9 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+### Added
+- The `missing` parameter for Elasticsearch's `Terms` aggregation.
+
 ## [29.10.0] - 2026-08-21
 
 ### Added

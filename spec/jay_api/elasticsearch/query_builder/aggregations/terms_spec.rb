@@ -140,6 +140,20 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::Aggregations::Terms do
       end
     end
 
+    context "when no 'missing' value has been given" do
+      it "haa the same value for 'missing' fields" do
+        expect(method_call.missing).to be(terms.missing)
+      end
+    end
+
+    context "when a 'missing' value has been given" do
+      let(:constructor_params) { super().merge(missing: 'N/A') }
+
+      it "haa the same value for 'missing' fields" do
+        expect(method_call.missing).to be(terms.missing) & eq('N/A')
+      end
+    end
+
     it_behaves_like 'JayAPI::Elasticsearch::QueryBuilder::Aggregations::Terms::#clone'
   end
 
@@ -227,6 +241,22 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::Aggregations::Terms do
       end
 
       it 'returns the expected hash (including the given order hash)' do
+        expect(method_call).to eq(expected_hash)
+      end
+    end
+
+    context "when a value for 'missing' fields has been given" do
+      let(:constructor_params) { super().merge(missing: 'N/A') }
+
+      let(:expected_hash) do
+        {
+          'genres' => {
+            terms: { field: 'genre', missing: 'N/A' }
+          }
+        }
+      end
+
+      it "returns the expected hash (including the given 'missing' value)" do
         expect(method_call).to eq(expected_hash)
       end
     end

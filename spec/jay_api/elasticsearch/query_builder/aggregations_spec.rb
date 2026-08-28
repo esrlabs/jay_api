@@ -76,7 +76,7 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::Aggregations do
 
     it 'creates the Terms instance with the expected parameters' do
       expect(JayAPI::Elasticsearch::QueryBuilder::Aggregations::Terms)
-        .to receive(:new).with(name, field: field, script: nil, size: nil, order: nil)
+        .to receive(:new).with(name, field: field)
 
       method_call
     end
@@ -90,7 +90,7 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::Aggregations do
 
       it 'creates the Terms instance with the expected parameters' do
         expect(JayAPI::Elasticsearch::QueryBuilder::Aggregations::Terms)
-          .to receive(:new).with(name, field: field, script: nil, size: 100, order: nil)
+          .to receive(:new).with(name, field: field, size: 100)
 
         method_call
       end
@@ -105,7 +105,7 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::Aggregations do
 
       it 'creates the Terms instance with the expected parameters' do
         expect(JayAPI::Elasticsearch::QueryBuilder::Aggregations::Terms)
-          .to receive(:new).with(name, field: field, script: nil, size: nil, order: { _key: :asc })
+          .to receive(:new).with(name, field: field, order: { _key: :asc })
 
         method_call
       end
@@ -126,7 +126,22 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::Aggregations do
 
       it 'creates the Terms instance with the expected parameters' do
         expect(JayAPI::Elasticsearch::QueryBuilder::Aggregations::Terms)
-          .to receive(:new).with(name, field: field, script: script, size: nil, order: nil)
+          .to receive(:new).with(name, field: field, script: script)
+
+        method_call
+      end
+    end
+
+    context "when a 'missing' value is provided" do
+      subject(:method_call) do
+        aggregations.terms(
+          name, field: field, missing: 'NULL'
+        )
+      end
+
+      it 'creates the Terms instance with the expected parameters' do
+        expect(JayAPI::Elasticsearch::QueryBuilder::Aggregations::Terms)
+          .to receive(:new).with(name, field: field, missing: 'NULL')
 
         method_call
       end

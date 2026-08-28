@@ -450,11 +450,15 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::Aggregations do
 
   describe '#top_hits' do
     subject(:method_call) do
-      aggregations.top_hits(name, size: size)
+      aggregations.top_hits(name, **method_params)
     end
 
     let(:name) { 'recent_logs' }
     let(:size) { 10 }
+
+    let(:method_params) do
+      { size: }
+    end
 
     let(:top_hits) do
       instance_double(
@@ -473,6 +477,21 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::Aggregations do
         .to receive(:new).with(name, size: size)
 
       method_call
+    end
+
+    context "when a 'sort' parameter is given" do
+      let(:sort) do
+        { date: { order: :desc } }
+      end
+
+      let(:method_params) { super().merge(sort:) }
+
+      it 'creates the TopHits instance with the expected parameters' do
+        expect(JayAPI::Elasticsearch::QueryBuilder::Aggregations::TopHits)
+          .to receive(:new).with(name, size: size, sort: sort)
+
+        method_call
+      end
     end
 
     it 'adds the TopHits instance to the array of aggregations' do

@@ -28,6 +28,25 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::Aggregations::TopHits do
       expect(method_call.size).to be(top_hits.size)
     end
 
+    context "when no 'sort' has been given" do
+      it "has its 'sort' set to nil" do
+        expect(method_call.sort).to be_nil
+      end
+    end
+
+    context "when a 'sort' has been given" do
+      let(:sort) { { timestamp: :desc } }
+      let(:constructor_params) { super().merge(sort: sort) }
+
+      it "has its 'sort' set to the same value" do
+        expect(method_call.sort).to eq(sort)
+      end
+
+      it 'is not the same hash' do
+        expect(method_call.sort).not_to be(top_hits.sort)
+      end
+    end
+
     context 'when the original object has nested aggregations' do
       let(:cloned_aggregations) { instance_double(JayAPI::Elasticsearch::QueryBuilder::Aggregations) }
 
@@ -50,18 +69,46 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::Aggregations::TopHits do
   describe '#to_h' do
     subject(:method_call) { top_hits.to_h }
 
-    let(:expected_hash) do
-      {
-        'an_aggregation_sample' => {
-          top_hits: { size: 1 }
-        }
-      }
-    end
-
     it_behaves_like 'JayAPI::Elasticsearch::QueryBuilder::Aggregations::Aggregation#to_h'
 
-    it 'returns the expected Hash' do
-      expect(method_call).to eq(expected_hash)
+    context "when no 'sort' has been given" do
+      let(:expected_hash) do
+        {
+          'an_aggregation_sample' => {
+            top_hits: { size: 1 }
+          }
+        }
+      end
+
+      it 'returns the expected Hash (does not include the :sort key)' do
+        expect(method_call).to eq(expected_hash)
+      end
+    end
+
+    context "when a 'sort' has been given" do
+      let(:sort) { { timestamp: :desc } }
+      let(:constructor_params) { super().merge(sort: sort) }
+
+      let(:expected_hash) do
+        {
+          'an_aggregation_sample' => {
+            top_hits: {
+              size: 1,
+              sort: { timestamp: :desc }
+            }
+          }
+        }
+      end
+
+      it 'returns the expected Hash (includes the expected :sort key)' do
+        expect(method_call).to eq(expected_hash)
+      end
+
+      it "does not return a reference to the internal 'sort' Hash" do
+        sort_hash = method_call.dig('an_aggregation_sample', :top_hits, :sort)
+        expect(sort_hash).not_to be(top_hits.sort)
+        expect(sort_hash).to eq(sort)
+      end
     end
   end
 end

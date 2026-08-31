@@ -47,6 +47,50 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::Aggregations::TopHits do
       end
     end
 
+    shared_examples_for "#clone when a '_source' has been given" do
+      it "has its '_source' set to the same value" do
+        expect(method_call._source).to eq(_source)
+      end
+    end
+
+    shared_examples_for "#clone when a non-scalar '_source' has been given" do
+      it_behaves_like "#clone when a '_source' has been given"
+
+      it 'is not the same object' do
+        expect(method_call._source).not_to be(top_hits._source)
+      end
+    end
+
+    context "when a '_source' has been given" do
+      let(:constructor_params) { super().merge(_source:) }
+
+      context "when '_source' is a boolean" do
+        let(:_source) { false }
+
+        it_behaves_like "#clone when a '_source' has been given"
+      end
+
+      context "when '_source' is a string" do
+        let(:_source) { 'meta_data.*' }
+
+        it_behaves_like "#clone when a non-scalar '_source' has been given"
+      end
+
+      context "when '_source' is an array" do
+        let(:_source) { %w[meta_data.* timestamp] }
+
+        it_behaves_like "#clone when a non-scalar '_source' has been given"
+      end
+
+      context "when '_source' is a hash" do
+        let(:_source) do
+          { includes: %i[date price] }
+        end
+
+        it_behaves_like "#clone when a non-scalar '_source' has been given"
+      end
+    end
+
     context 'when the original object has nested aggregations' do
       let(:cloned_aggregations) { instance_double(JayAPI::Elasticsearch::QueryBuilder::Aggregations) }
 
@@ -108,6 +152,54 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::Aggregations::TopHits do
         sort_hash = method_call.dig('an_aggregation_sample', :top_hits, :sort)
         expect(sort_hash).not_to be(top_hits.sort)
         expect(sort_hash).to eq(sort)
+      end
+    end
+
+    context "when a '_source' has been given" do
+      let(:constructor_params) { super().merge(_source:) }
+
+      context "when '_source' is a scalar" do
+        let(:_source) { false }
+
+        let(:expected_hash) do
+          {
+            'an_aggregation_sample' => {
+              top_hits: {
+                size: 1,
+                _source: false
+              }
+            }
+          }
+        end
+
+        it 'returns the expected Hash' do
+          expect(method_call).to eq(expected_hash)
+        end
+      end
+
+      context "when '_source' is not a scalar" do
+        let(:_source) { %w[meta_data.* timestamp] }
+
+        let(:expected_hash) do
+          {
+            'an_aggregation_sample' => {
+              top_hits: {
+                size: 1,
+                _source: %w[meta_data.* timestamp]
+              }
+            }
+          }
+        end
+
+        it 'returns the expected Hash' do
+          expect(method_call).to eq(expected_hash)
+        end
+
+        it "does not return a reference to the internal '_source' object" do
+          source_hash = method_call.dig('an_aggregation_sample', :top_hits, :_source)
+          expect(source_hash).not_to be(top_hits._source)
+          expect(source_hash).to eq(_source)
+        end
       end
     end
   end

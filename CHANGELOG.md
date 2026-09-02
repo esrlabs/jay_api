@@ -8,6 +8,8 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+## [29.11.0] - 2026-09-03
+
 ### Added
 - The `_source` parameter for Elasticsearch's `TopHits` aggregation.
 - The `sort` parameter for Elasticsearch's `TopHits` aggregation.

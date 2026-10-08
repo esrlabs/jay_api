@@ -88,16 +88,24 @@ module JayAPI
         # @return [self] A new +QueryClauses+ object which is a combination of
         #   the receiver and the given object.
         def merge(other)
-          klass = self.class
-          raise TypeError, "Cannot merge #{klass} with #{other.class}" unless other.is_a?(klass)
+          combine(other, __method__) do |combined|
+            combined.bool.merge!(top_level_clause).merge!(other.top_level_clause)
+          end
+        end
 
-          if other.empty?
-            clone
-          elsif empty?
-            other.clone
-          else
-            klass.new.tap do |merged|
-              merged.bool.merge!(top_level_clause).merge!(other.top_level_clause)
+        # Creates a new +QueryClauses+ object representing the union of the
+        # receiver and the given object. The individual top-query clauses are
+        # combined using a +should+ boolean clause.
+        # @param [JayAPI::Elasticsearch::QueryBuilder::QueryClauses] other The
+        #   +QueryClauses+ object the receiver should be combined with.
+        # @return [JayAPI::Elasticsearch::QueryBuilder::QueryClauses] A new
+        #   +QueryClauses+ object which is a combination of the receiver and
+        #   the given object.
+        def union(other)
+          combine(other, __method__) do |combined|
+            combined.bool.should do |bool|
+              bool << top_level_clause
+              bool << other.top_level_clause
             end
           end
         end
@@ -142,6 +150,32 @@ module JayAPI
           end
 
           @top_level_clause = clause
+        end
+
+        # Combines the current +QueryClauses+ object with another one using the
+        # specified action. The combination is performed by yielding a new
+        # +QueryClauses+ object to the given block, which should define how the
+        # combination is done.
+        # @param [JayAPI::Elasticsearch::QueryBuilder::QueryClauses] other The
+        #   +QueryClauses+ object to combine with.
+        # @param [Symbol] action The action describing how the combination would
+        #   be performed (used only for the error message when the combination
+        #   is not possible).
+        # @yield [combined] A new +QueryClauses+ object in which the combination
+        #   should be carried out by the block.
+        # @return [JayAPI::Elasticsearch::QueryBuilder::QueryClauses] The new
+        #   combined +QueryClauses+ object.
+        def combine(other, action, &block)
+          klass = self.class
+          raise TypeError, "Cannot perform '#{action}' between #{klass} and #{other.class}" unless other.is_a?(klass)
+
+          if other.empty?
+            clone
+          elsif empty?
+            other.clone
+          else
+            klass.new.tap { |combined| block.call(combined) }
+          end
         end
       end
     end

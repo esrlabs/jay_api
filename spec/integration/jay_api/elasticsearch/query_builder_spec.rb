@@ -186,12 +186,8 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder do
     it_behaves_like '#to_h'
   end
 
-  describe '#merge' do
-    subject(:method_call) { query_builder.merge(other) }
-
-    let(:other) { described_class.new }
-
-    context 'when the QueryBuilder has nested aggregations' do
+  shared_examples_for '#combine' do
+    context 'when the QueryBuilder objects have nested aggregations' do
       before do
         query_builder.aggregations.avg('overall_avg_price', field: 'price')
         query_builder.aggregations.filter('hats') { |query| query.term(field: 'type', value: 'hat') }
@@ -227,7 +223,7 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder do
       end
     end
 
-    context 'when the receiver has a simple clause and the mergee is empty' do
+    context 'when the receiver has a simple clause and other is empty' do
       before do
         query_builder.query.term(field: 'user.name', value: 'kimchy')
       end
@@ -247,7 +243,7 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder do
       end
     end
 
-    context 'when the receiver is empty and the mergee has a simple clause' do
+    context 'when the receiver is empty and other has a simple clause' do
       before do
         other.query.range(field: 'age', gte: 10, lte: 20)
       end
@@ -266,6 +262,14 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder do
         expect(method_call.to_query).to eq(expected_query)
       end
     end
+  end
+
+  describe '#merge' do
+    subject(:method_call) { query_builder.merge(other) }
+
+    let(:other) { described_class.new }
+
+    it_behaves_like '#combine'
 
     context 'when two simple queries are merged' do
       before do
@@ -387,6 +391,81 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder do
       end
 
       it 'merges the two queries as expected (overlapping boolean clauses are merged together)' do
+        expect(method_call.to_query).to eq(expected_query)
+      end
+    end
+  end
+
+  describe '#union' do
+    subject(:method_call) { query_builder.union(other) }
+
+    let(:other) { described_class.new }
+
+    it_behaves_like '#combine'
+
+    context 'when two simple queries are merged' do
+      before do
+        query_builder.query.term(field: 'user.name', value: 'kimchy')
+        other.query.range(field: 'age', gte: 10, lte: 20)
+      end
+
+      let(:expected_query) do
+        {
+          query: {
+            bool: {
+              should: [
+                { term: { 'user.name' => { value: 'kimchy' } } },
+                { range: { 'age' => { gte: 10, lte: 20 } } }
+              ]
+            }
+          }
+        }
+      end
+
+      it "merges both query using a boolean 'should' (equivalent to OR)" do
+        expect(method_call.to_query).to eq(expected_query)
+      end
+    end
+
+    context 'when two boolean queries are merged' do
+      before do
+        query_builder.query.bool.must do |bool_query|
+          bool_query.term(field: 'user.name', value: 'kimchy')
+          bool_query.range(field: 'age', gte: 10, lte: 20)
+        end
+
+        other.query.bool.must_not do |bool_query|
+          bool_query.exists(field: 'user.pet')
+        end
+      end
+
+      let(:expected_query) do
+        {
+          query: {
+            bool: {
+              should: [
+                {
+                  bool: {
+                    must: [
+                      { term: { 'user.name' => { value: 'kimchy' } } },
+                      { range: { 'age' => { gte: 10, lte: 20 } } }
+                    ]
+                  }
+                },
+                {
+                  bool: {
+                    must_not: [
+                      { exists: { field: 'user.pet' } }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      end
+
+      it "merges the two queries with a boolean 'should' (equivalent to OR)" do
         expect(method_call.to_query).to eq(expected_query)
       end
     end

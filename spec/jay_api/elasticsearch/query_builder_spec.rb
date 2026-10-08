@@ -418,9 +418,7 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder do
     it_behaves_like 'JayAPI::Elasticsearch::QueryBuilder#to_query'
   end
 
-  describe '#merge' do
-    subject(:method_call) { query_builder.merge(other) }
-
+  shared_examples_for '#combine' do |operation:|
     let(:other) { described_class.new }
 
     let(:other_query_clauses) do
@@ -429,10 +427,10 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder do
       )
     end
 
-    let(:merged_query_clauses) do
+    let(:combined_query_clauses) do
       instance_double(
         JayAPI::Elasticsearch::QueryBuilder::QueryClauses,
-        to_h: { merged: 'query' }
+        to_h: { combined: 'query' }
       )
     end
 
@@ -459,7 +457,7 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder do
       allow(JayAPI::Elasticsearch::QueryBuilder::Aggregations)
         .to receive(:new).and_return(aggregations, other_aggregations)
 
-      allow(query_clauses).to receive(:merge).and_return(merged_query_clauses)
+      allow(query_clauses).to receive(operation).and_return(combined_query_clauses)
       allow(aggregations).to receive(:merge).and_return(merged_aggregations)
     end
 
@@ -474,14 +472,26 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder do
       it 'raises a TypeError' do
         expect { method_call }.to raise_error(
           TypeError,
-          "Cannot merge #{described_class} and Array"
+          expected_error
         )
       end
     end
 
-    it "merges the receiver's query with the query from 'other'" do
-      expect(query_clauses).to receive(:merge).with(other_query_clauses)
-      method_call
+    it 'returns a new QueryBuilder' do
+      expect(method_call).to be_a(described_class)
+      expect(method_call).not_to be(query_builder)
+    end
+
+    it "does not return 'other'" do
+      expect(method_call).not_to be(other)
+    end
+
+    it 'uses the combined query clauses' do
+      expect(method_call.query).to be(combined_query_clauses)
+    end
+
+    it 'includes the combined query in the generated query' do
+      expect(method_call.to_h).to include(query: { combined: 'query' })
     end
 
     it "merges the receiver's aggregations with the aggregations from 'other'" do
@@ -499,7 +509,7 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder do
       before { query_builder.sort('test_case.started_at' => :desc) }
 
       let(:expected_clause) do
-        ['test_case.started_at' => { order: :desc }]
+        [{ 'test_case.started_at' => { order: :desc } }]
       end
 
       it 'adds the expected sort clause to the merged object (the one from the receiver)' do
@@ -514,7 +524,7 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder do
       end
 
       let(:expected_clause) do
-        ['test_case.id_long' => { order: :asc }]
+        [{ 'test_case.id_long' => { order: :asc } }]
       end
 
       it "adds the expected sort clause to the merged object (the one from 'other')" do
@@ -548,7 +558,7 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder do
         end
 
         let(:expected_clause) do
-          ['test_case.started_at' => { order: :asc }]
+          [{ 'test_case.started_at' => { order: :asc } }]
         end
 
         it "adds the expected sort clause to the merged object (the one from 'other')" do
@@ -698,6 +708,32 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder do
 
       it "adds the expected 'collapse' clause to the merged object (the one from 'other')" do
         expect(method_call.to_h).to include(collapse: { field: 'test_env.build_number' })
+      end
+    end
+  end
+
+  describe '#merge' do
+    subject(:method_call) { query_builder.merge(other) }
+
+    let(:expected_error) { "Cannot merge #{described_class} and Array" }
+
+    it_behaves_like '#combine', operation: :merge do
+      it "merges the receiver's query with the query from 'other'" do
+        expect(query_clauses).to receive(:merge).with(other_query_clauses)
+        method_call
+      end
+    end
+  end
+
+  describe '#union' do
+    subject(:method_call) { query_builder.union(other) }
+
+    let(:expected_error) { "Cannot create a union of #{described_class} and Array" }
+
+    it_behaves_like '#combine', operation: :union do
+      it "creates a union of the receiver's query and the query from 'other'" do
+        expect(query_clauses).to receive(:union).with(other_query_clauses)
+        method_call
       end
     end
   end

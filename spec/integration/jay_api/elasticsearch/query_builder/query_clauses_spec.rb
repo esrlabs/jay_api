@@ -129,4 +129,41 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::QueryClauses do
       end
     end
   end
+
+  describe '#intersection' do
+    subject(:method_call) { query_clauses.intersection(other) }
+
+    let(:other) { described_class.new }
+
+    let(:expected_query) do
+      {
+        bool: {
+          must: [
+            {
+              bool: {
+                should: [
+                  { term: { 'test_case.result' => { value: 'fail' } } },
+                  { exists: { field: 'test_case.refs' } }
+                ]
+              }
+            },
+            { range: { 'test_case.date' => { gte: 'now-14d/d' } } }
+          ]
+        }
+      }
+    end
+
+    before do
+      query_clauses.bool.should do |bool_query|
+        bool_query.term(field: 'test_case.result', value: 'fail')
+        bool_query.exists(field: 'test_case.refs')
+      end
+
+      other.range(field: 'test_case.date', gte: 'now-14d/d')
+    end
+
+    it 'returns the expected query' do
+      expect(method_call.to_h).to eq(expected_query)
+    end
+  end
 end

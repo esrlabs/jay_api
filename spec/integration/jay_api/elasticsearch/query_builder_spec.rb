@@ -470,4 +470,79 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder do
       end
     end
   end
+
+  describe '#intersection' do
+    subject(:method_call) { query_builder.intersection(other) }
+
+    let(:other) { described_class.new }
+
+    it_behaves_like '#combine'
+
+    context 'when two simple queries are merged' do
+      before do
+        query_builder.query.term(field: 'user.name', value: 'kimchy')
+        other.query.range(field: 'age', gte: 10, lte: 20)
+      end
+
+      let(:expected_query) do
+        {
+          query: {
+            bool: {
+              must: [
+                { term: { 'user.name' => { value: 'kimchy' } } },
+                { range: { 'age' => { gte: 10, lte: 20 } } }
+              ]
+            }
+          }
+        }
+      end
+
+      it "merges both query using a boolean 'must' (equivalent to AND)" do
+        expect(method_call.to_query).to eq(expected_query)
+      end
+    end
+
+    context 'when two boolean queries are merged' do
+      before do
+        query_builder.query.bool.must do |bool_query|
+          bool_query.term(field: 'user.name', value: 'kimchy')
+          bool_query.range(field: 'age', gte: 10, lte: 20)
+        end
+
+        other.query.bool.must_not do |bool_query|
+          bool_query.exists(field: 'user.pet')
+        end
+      end
+
+      let(:expected_query) do
+        {
+          query: {
+            bool: {
+              must: [
+                {
+                  bool: {
+                    must: [
+                      { term: { 'user.name' => { value: 'kimchy' } } },
+                      { range: { 'age' => { gte: 10, lte: 20 } } }
+                    ]
+                  }
+                },
+                {
+                  bool: {
+                    must_not: [
+                      { exists: { field: 'user.pet' } }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      end
+
+      it "merges the two queries with a boolean 'must' (equivalent to AND)" do
+        expect(method_call.to_query).to eq(expected_query)
+      end
+    end
+  end
 end

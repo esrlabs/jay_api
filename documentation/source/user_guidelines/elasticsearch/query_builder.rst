@@ -476,6 +476,8 @@ field.
    # The documents matching the given IDs will be matched
    query_builder.query.ids(ids: %w[eSO6FZ8BUAdcYcWLRszq of2yFZ8BXEjZhYMm9Goe w1KlFZ8BK-fBiJSF1ptV])
 
+.. _`QueryBuilder#merge`:
+
 #merge
 ------
 
@@ -569,6 +571,58 @@ The ``from``, ``size``, ``source`` and ``collapse`` settings, as well as
 
    This method returns a new ``QueryBuilder`` object which can be further
    modified without affecting the source objects.
+
+#intersection
+-------------
+
+The ``intersection`` method combines two ``QueryBuilder`` objects into a
+single one. It combines their top-level query clauses with a boolean ``must``
+query (equivalent to ``AND``), so documents must match both queries.
+
+Example:
+
+.. code-block:: ruby
+
+   users_query = QueryBuilder.new
+     .terms(field: 'user.id', terms: %w[kimchy elkbee])
+     .sort('user.created_at' => :desc)
+     .size(100)
+
+   bio_query = QueryBuilder.new
+     .query_string(query: "user.bio: painter OR poet")
+     .size(10)
+
+   combined_query = users_query.intersection(bio_query)
+
+Would be equivalent to:
+
+.. code-block:: ruby
+
+   combined_query = QueryBuilder.new
+     .sort('user.created_at' => :desc) # Kept from the users_query
+     .size(10)                         # From bio_query, replacing the first size
+
+   combined_query.query.bool.must do |bool_query|
+     bool_query.terms(field: 'user.id', terms: %w[kimchy elkbee])
+     bool_query.query_string(query: "user.bio: painter OR poet")
+   end
+
+The ``from``, ``size``, ``source`` and ``collapse`` settings, as well as
+``sort`` and ``aggregations``, are combined using the same rules as ``merge``.
+
+.. note::
+
+   This method returns a new ``QueryBuilder`` object which can be further
+   modified without affecting the source objects.
+
+.. note::
+
+   This method differs from :ref:`QueryBuilder#merge` because it doesn't merge
+   the top-level query clauses if both of them are boolean queries, instead it
+   just wraps them in a boolean ``must`` query.
+
+   In some cases, this is the desired behaviour, especially when ``should``
+   clauses are involved.
 
 aggregations
 ------------

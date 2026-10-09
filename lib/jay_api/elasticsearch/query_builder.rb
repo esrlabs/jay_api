@@ -121,9 +121,31 @@ module JayAPI
         klass = self.class
         raise TypeError, "Cannot merge #{klass} and #{other.class}" unless other.is_a?(klass)
 
+        merged_query = query.merge(other.query)
+
         other.combine(
           from: @from, size: @size, source: @source, collapse: @collapse,
-          sort: @sort, query: @query, aggregations: @aggregations
+          sort: @sort, query: merged_query, aggregations: @aggregations
+        )
+      end
+
+      # Creates a new +QueryBuilder+ object which is the result of taking the
+      # union of the receiver with +other+.
+      # @param [JayAPI::Elasticsearch::QueryBuilder] other Another instance of
+      #   +QueryBuilder+.
+      # @return [JayAPI::Elasticsearch::QueryBuilder] A new +QueryBuilder+, the
+      #   result of the union of both objects.
+      # @see JayAPI::Elasticsearch::QueryClauses#union
+      # @raise [TypeError] If the given object is not a +QueryBuilder+.
+      def union(other)
+        klass = self.class
+        raise TypeError, "Cannot create a union of #{klass} and #{other.class}" unless other.is_a?(klass)
+
+        query_union = query.union(other.query)
+
+        other.combine(
+          from: @from, size: @size, source: @source, collapse: @collapse,
+          sort: @sort, query: query_union, aggregations: @aggregations
         )
       end
 
@@ -160,7 +182,7 @@ module JayAPI
           combined.source = @source || source
           combined.collapse = @collapse || collapse
           combined.sort = sort.merge(@sort)
-          combined.query = query.merge(self.query)
+          combined.query = query
           combined.aggregations = aggregations.merge(self.aggregations)
         end
       end

@@ -8,6 +8,10 @@ Please mark backwards incompatible changes with an exclamation mark at the start
 
 ## [Unreleased]
 
+### Added
+- The `#union` method to `JayAPI::Elasticsearch::QueryBuilder`, which combines
+  two queries using a boolean `should` clause (equivalent to `OR`).
+
 ## [29.11.0] - 2026-09-03
 
 ### Added

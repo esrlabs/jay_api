@@ -550,6 +550,78 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::QueryClauses do
     end
   end
 
+  describe '#intersection' do
+    subject(:method_call) { query_clauses.intersection(other) }
+
+    it_behaves_like '#combine', 'intersection'
+
+    context "when neither the receiver nor 'other' are empty" do
+      let(:other) { described_class.new }
+
+      let(:bool_clause) do
+        instance_double(
+          JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Bool,
+          to_h: { bool: { must: [exists_clause_clone.to_h, range_clause_clone.to_h] } }
+        )
+      end
+
+      let(:expected_hash) do
+        {
+          bool: {
+            must: [
+              { exists: { field: 'build_job_name' } },
+              { range: { 'build_number' => { gt: 150 } } }
+            ]
+          }
+        }
+      end
+
+      include_context 'with a mocked Range QueryClause'
+      include_context 'with a mocked Exist QueryClause'
+
+      before do
+        allow(JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Bool)
+          .to receive(:new).and_return(bool_clause)
+
+        allow(bool_clause).to receive(:must).and_yield(bool_clause)
+        allow(bool_clause).to receive(:<<).and_return(bool_clause)
+
+        query_clauses.exists(field: 'build_job_name')
+        other.range(field: 'build_number', gt: 150)
+      end
+
+      it 'returns a new instance of the class' do
+        expect(method_call).to be_a(described_class)
+      end
+
+      it 'creates a boolean clause to put together the two enclosed clauses' do
+        expect(JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Bool).to receive(:new)
+        method_call
+      end
+
+      it "uses a 'must' boolean clause to join the two enclosed clauses" do
+        expect(bool_clause).to receive(:must)
+        method_call
+      end
+
+      it "adds the receiver's top-level clause to the created boolean clause" do
+        expect(bool_clause).to receive(:<<).with(exists_clause)
+        method_call
+      end
+
+      it "adds 'other's top-level clause to the created boolean clause" do
+        expect(bool_clause).to receive(:<<).with(range_clause)
+        method_call
+      end
+
+      it 'sets the created boolean clause as top-level clause for the returned object' do
+        # The #to_h call is used to make sure that the +bool_clause+ double was
+        # set as top-level clause for the returned object.
+        expect(method_call.to_h).to eq(expected_hash)
+      end
+    end
+  end
+
   shared_context 'with a mocked MatchNone clause' do
     let(:match_none) do
       instance_double(

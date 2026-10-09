@@ -149,6 +149,26 @@ module JayAPI
         )
       end
 
+      # Creates a new +QueryBuilder+ object which is the result of taking the
+      # intersection of the receiver with +other+.
+      # @param [JayAPI::Elasticsearch::QueryBuilder] other Another instance of
+      #   +QueryBuilder+.
+      # @return [JayAPI::Elasticsearch::QueryBuilder] A new +QueryBuilder+, the
+      #   result of the intersection of both objects.
+      # @see JayAPI::Elasticsearch::QueryClauses#intersection
+      # @raise [TypeError] If the given object is not a +QueryBuilder+.
+      def intersection(other)
+        klass = self.class
+        raise TypeError, "Cannot create an intersection of #{klass} and #{other.class}" unless other.is_a?(klass)
+
+        query_intersection = query.intersection(other.query)
+
+        other.combine(
+          from: @from, size: @size, source: @source, collapse: @collapse,
+          sort: @sort, query: query_intersection, aggregations: @aggregations
+        )
+      end
+
       # @return [JayAPI::Elasticsearch::QueryBuilder] A copy of the receiver.
       def clone
         copy = super

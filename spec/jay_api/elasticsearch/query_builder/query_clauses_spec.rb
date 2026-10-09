@@ -444,7 +444,6 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::QueryClauses do
         allow(JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Bool)
           .to receive(:new).and_return(bool_clause)
 
-        allow(bool_clause).to receive(:must).and_yield(bool_clause)
         allow(bool_clause).to receive(:merge!).and_return(bool_clause)
 
         query_clauses.exists(field: 'build_job_name')

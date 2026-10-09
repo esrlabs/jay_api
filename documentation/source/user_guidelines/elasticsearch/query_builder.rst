@@ -484,7 +484,10 @@ field.
 The ``merge`` method merges two ``QueryBuilder`` objects into a single one. This
 opens the door to the construction of compound queries.
 
-Example:
+Examples:
+
+When the ``QueryBuilder`` objects being merged have only non-boolean query
+clauses, they are wrapped in a boolean ``must`` query:
 
 .. code-block:: ruby
 
@@ -512,6 +515,47 @@ Would be equivalent to:
      bool_query.query_string(query: "user.bio: painter OR poet")
    end
 
+--------
+
+When the ``QueryBuilder`` objects being merged have boolean query clauses, they
+are combined into a single boolean query:
+
+.. code-block:: ruby
+
+   users_query = QueryBuilder.new
+     .query.bool.must do |bool_query|
+       bool_query.terms(field: 'user.id', terms: %w[kimchy elkbee])
+       bool_query.terms(field: 'user.active', terms: 'true'])
+     end
+
+   bio_query = QueryBuilder.new
+     .query.bool.must do |bool_query|
+       bool_query.query_string(query: "user.bio: painter OR poet")
+     end
+
+   pet_query = QueryBuilder.new
+     .query.bool.must_not do |bool_query|
+       bool_query.term(field: 'user.pet', value: 'cat')
+     end
+
+   compound_query = users_query.merge(bio_query).merge(pet_query)
+
+Would be equivalent to:
+
+.. code-block:: ruby
+
+   compound_query = QueryBuilder.new
+
+   compound_query.query.bool.must do |bool_query|
+     bool_query.terms(field: 'user.id', terms: %w[kimchy elkbee])   # From user_query
+     bool_query.terms(field: 'user.active', terms: 'true'])         # From user_query
+     bool_query.query_string(query: "user.bio: painter OR poet")    # From bio_query
+   end
+
+   compound_query.query.bool.must_not do |bool_query|
+     bool_query.term(field: 'user.pet', value: 'cat')              # From pet_query
+   end
+
 .. note::
 
    This method returns a new ``QueryBuilder`` object which can be further
@@ -526,7 +570,6 @@ The different clauses of the query are merged like this:
 
 ``sort``, ``query`` and ``aggregations``:
   These are merged, the result is a compound of the clauses in both objects.
-  Query clauses are merged with a boolean ``must`` query (equivalent to ``AND``)
 
 #union
 ------

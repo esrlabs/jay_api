@@ -71,6 +71,10 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::QueryClauses do
         method_call
       end
 
+      it 'returns the same boolean clause that was created before' do
+        expect(method_call).to be(bool_clause)
+      end
+
       it 'does not raise any errors' do
         expect { method_call }.not_to raise_error
       end
@@ -93,6 +97,16 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::QueryClauses do
     end
   end
 
+  shared_examples_for '#<< when there a top-level clause already exists' do
+    it 'raises a JayAPI::Elasticsearch::QueryBuilder::Errors::QueryBuilderError' do
+      expect { method_call }.to raise_error(
+        JayAPI::Elasticsearch::QueryBuilder::Errors::QueryBuilderError,
+        'Queries can only have one top-level query clause, to use multiple clauses ' \
+        'add a compound query, for example: `bool`'
+      )
+    end
+  end
+
   describe '#<<' do
     subject(:method_call) { query_clauses << query_clause }
 
@@ -103,13 +117,13 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::QueryClauses do
     context 'when another clause has already been added' do
       before { query_clauses.wildcard(field: 'some_field', value: 'a*value') }
 
-      it 'raises a JayAPI::Elasticsearch::QueryBuilder::Errors::QueryBuilderError' do
-        expect { method_call }.to raise_error(
-          JayAPI::Elasticsearch::QueryBuilder::Errors::QueryBuilderError,
-          'Queries can only have one top-level query clause, to use multiple ' \
-          'clauses add a compound query, for example: `bool`'
-        )
-      end
+      it_behaves_like '#<< when there a top-level clause already exists'
+    end
+
+    context 'when a boolean clause has already been added' do
+      before { query_clauses.bool }
+
+      it_behaves_like '#<< when there a top-level clause already exists'
     end
 
     context 'when no other clause exists yet' do

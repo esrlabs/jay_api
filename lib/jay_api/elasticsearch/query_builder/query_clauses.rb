@@ -31,8 +31,11 @@ module JayAPI
         #   If a block is given then +self+ is returned, if no block is given
         #   then the +bool+ query clause is returned.
         def bool
-          clause ||= boolean_clause || ::JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Bool.new
-          replace_top_level_clause(clause, force: boolean_query?)
+          clause = if boolean_query?
+                     top_level_clause
+                   else
+                     self.top_level_clause = ::JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Bool.new
+                   end
 
           if block_given?
             yield clause
@@ -50,7 +53,8 @@ module JayAPI
         # @raise [JayAPI::Elasticsearch::QueryBuilder::Errors::QueryBuilderError]
         #   If there is already a top level clause.
         def <<(query_clause)
-          replace_top_level_clause(query_clause)
+          self.top_level_clause = query_clause
+          self
         end
 
         # @return [Hash] The Hash representation of the Query Clauses set.
@@ -125,37 +129,19 @@ module JayAPI
 
         private
 
-        # Replaces the current top-level clause with the given clause.
-        # @param [JayAPI::Elasticsearch::QueryBuilder::QueryClauses::QueryClause]
-        #   query_clause The query clause to add.
-        # @param [Boolean] force Forces the replacement of the top-level clause
-        #   even if there is already a top-level clause in place.
-        # @return [JayAPI::Elasticsearch::QueryBuilder::QueryClauses] Returns
-        #   itself so that other methods can be chained.
+        # @param [JayAPI::Elasticsearch::QueryBuilder::QueryClauses::QueryClause] clause
+        #   The new top-level query clause.
         # @raise [JayAPI::Elasticsearch::QueryBuilder::Errors::QueryBuilderError]
-        #   If there is already a top level clause and +force+ is +false+.
-        def replace_top_level_clause(query_clause, force: false)
-          single_top_level_clause! unless force
-          @top_level_clause = query_clause
-          self
-        end
+        #   If a top-level query clause already exists.
+        def top_level_clause=(clause)
+          if top_level_clause
+            raise ::JayAPI::Elasticsearch::QueryBuilder::Errors::QueryBuilderError,
+                  'Queries can only have one top-level query clause, ' \
+                  'to use multiple clauses add a compound query, ' \
+                  'for example: `bool`'
+          end
 
-        # @return [JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Bool, nil]
-        #   The current top-level clause if it is a Boolean clause, +nil+
-        #   otherwise.
-        def boolean_clause
-          boolean_query? ? top_level_clause : nil
-        end
-
-        # @raise [JayAPI::Elasticsearch::QueryBuilder::Errors::QueryBuilderError]
-        #   If there is already a top level clause.
-        def single_top_level_clause!
-          return unless top_level_clause
-
-          raise ::JayAPI::Elasticsearch::QueryBuilder::Errors::QueryBuilderError,
-                'Queries can only have one top-level query clause, ' \
-                'to use multiple clauses add a compound query, ' \
-                'for example: `bool`'
+          @top_level_clause = clause
         end
       end
     end

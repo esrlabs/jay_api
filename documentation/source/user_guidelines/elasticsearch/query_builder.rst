@@ -526,6 +526,50 @@ The different clauses of the query are merged like this:
   These are merged, the result is a compound of the clauses in both objects.
   Query clauses are merged with a boolean ``must`` query (equivalent to ``AND``)
 
+#union
+------
+
+The ``union`` method combines two ``QueryBuilder`` objects into a single one.
+Unlike the ``merge`` method, which combines query clauses with a boolean
+``must`` query (equivalent to ``AND``), ``union`` combines their top-level query
+clauses with a boolean ``should`` query (equivalent to ``OR``).
+
+Example:
+
+.. code-block:: ruby
+
+   users_query = QueryBuilder.new
+     .terms(field: 'user.id', terms: %w[kimchy elkbee])
+     .sort('user.created_at' => :desc)
+     .size(100)
+
+   bio_query = QueryBuilder.new
+     .query_string(query: "user.bio: painter OR poet")
+     .size(10)
+
+   combined_query = users_query.union(bio_query)
+
+Would be equivalent to:
+
+.. code-block:: ruby
+
+   combined_query = QueryBuilder.new
+     .sort('user.created_at' => :desc) # Kept from the users_query
+     .size(10)                         # From bio_query, replacing the first size
+
+   combined_query.query.bool.should do |bool_query|
+     bool_query.terms(field: 'user.id', terms: %w[kimchy elkbee])
+     bool_query.query_string(query: "user.bio: painter OR poet")
+   end
+
+The ``from``, ``size``, ``source`` and ``collapse`` settings, as well as
+``sort`` and ``aggregations``, are combined using the same rules as ``merge``.
+
+.. note::
+
+   This method returns a new ``QueryBuilder`` object which can be further
+   modified without affecting the source objects.
+
 aggregations
 ------------
 

@@ -336,9 +336,51 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::QueryClauses do
     end
   end
 
-  describe '#merge' do
-    subject(:method_call) { query_clauses.merge(other) }
+  shared_context 'with a mocked Range QueryClause' do
+    let(:range_clause_clone) do
+      instance_double(
+        JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Range,
+        to_h: { range: { 'build_number' => { gt: 150 } } }
+      )
+    end
 
+    let(:range_clause) do
+      instance_double(
+        JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Range,
+        to_h: { range: { 'build_number' => { gt: 150 } } },
+        clone: range_clause_clone
+      )
+    end
+
+    before do
+      allow(JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Range)
+        .to receive(:new).and_return(range_clause)
+    end
+  end
+
+  shared_context 'with a mocked Exist QueryClause' do
+    let(:exists_clause_clone) do
+      instance_double(
+        JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Exists,
+        to_h: { exists: { field: 'build_job_name' } }
+      )
+    end
+
+    let(:exists_clause) do
+      instance_double(
+        JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Exists,
+        clone: exists_clause_clone,
+        to_h: { exists: { field: 'build_job_name' } }
+      )
+    end
+
+    before do
+      allow(JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Exists)
+        .to receive(:new).and_return(exists_clause)
+    end
+  end
+
+  shared_examples_for '#combine' do |action|
     context "when 'other' is not a #{described_class}" do
       let(:other) do
         { query: { query_string: 'age: 27' } }
@@ -346,7 +388,7 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::QueryClauses do
 
       it 'raises a TypeError' do
         expect { method_call }.to raise_error(
-          TypeError, "Cannot merge #{described_class} with Hash"
+          TypeError, "Cannot perform '#{action}' between #{described_class} and Hash"
         )
       end
     end
@@ -354,6 +396,7 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::QueryClauses do
     context "when both the receiver and 'other' are empty" do
       let(:other) { described_class.new }
 
+      it_behaves_like '#clone'
       it_behaves_like '#clone when the receiver is empty'
     end
 
@@ -363,32 +406,10 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::QueryClauses do
       it_behaves_like '#clone when the receiver is not empty'
     end
 
-    shared_context 'with a Range QueryClause' do
-      let(:range_clause_clone) do
-        instance_double(
-          JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Range,
-          to_h: { range: { 'build_number' => { gt: 150 } } }
-        )
-      end
-
-      let(:range_clause) do
-        instance_double(
-          JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Range,
-          to_h: { range: { 'build_number' => { gt: 150 } } },
-          clone: range_clause_clone
-        )
-      end
-
-      before do
-        allow(JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Range)
-          .to receive(:new).and_return(range_clause)
-      end
-    end
-
     context "when the receiver is empty but 'other' is not" do
       let(:other) { described_class.new }
 
-      include_context 'with a Range QueryClause'
+      include_context 'with a mocked Range QueryClause'
 
       before { other.range(field: 'build_number', gt: 150) }
 
@@ -402,24 +423,15 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::QueryClauses do
         expect(method_call.to_h).to eq(other.to_h)
       end
     end
+  end
+
+  describe '#merge' do
+    subject(:method_call) { query_clauses.merge(other) }
+
+    it_behaves_like '#combine', 'merge'
 
     context "when neither the receiver nor 'other' are empty" do
       let(:other) { described_class.new }
-
-      let(:exists_clause_clone) do
-        instance_double(
-          JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Exists,
-          to_h: { exists: { field: 'build_job_name' } }
-        )
-      end
-
-      let(:exists_clause) do
-        instance_double(
-          JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Exists,
-          clone: exists_clause_clone,
-          to_h: { exists: { field: 'build_job_name' } }
-        )
-      end
 
       let(:bool_clause) do
         instance_double(
@@ -439,12 +451,10 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::QueryClauses do
         }
       end
 
-      include_context 'with a Range QueryClause'
+      include_context 'with a mocked Range QueryClause'
+      include_context 'with a mocked Exist QueryClause'
 
       before do
-        allow(JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Exists)
-          .to receive(:new).and_return(exists_clause)
-
         allow(JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Bool)
           .to receive(:new).and_return(bool_clause)
 
@@ -471,6 +481,78 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder::QueryClauses do
 
       it "merges 'other's top-level clause with the created boolean clause" do
         expect(bool_clause).to receive(:merge!).with(range_clause)
+        method_call
+      end
+
+      it 'sets the created boolean clause as top-level clause for the returned object' do
+        # The #to_h call is used to make sure that the +bool_clause+ double was
+        # set as top-level clause for the returned object.
+        expect(method_call.to_h).to eq(expected_hash)
+      end
+    end
+  end
+
+  describe '#union' do
+    subject(:method_call) { query_clauses.union(other) }
+
+    it_behaves_like '#combine', 'union'
+
+    context "when neither the receiver nor 'other' are empty" do
+      let(:other) { described_class.new }
+
+      let(:bool_clause) do
+        instance_double(
+          JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Bool,
+          to_h: { bool: { should: [exists_clause_clone.to_h, range_clause_clone.to_h] } }
+        )
+      end
+
+      let(:expected_hash) do
+        {
+          bool: {
+            should: [
+              { exists: { field: 'build_job_name' } },
+              { range: { 'build_number' => { gt: 150 } } }
+            ]
+          }
+        }
+      end
+
+      include_context 'with a mocked Range QueryClause'
+      include_context 'with a mocked Exist QueryClause'
+
+      before do
+        allow(JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Bool)
+          .to receive(:new).and_return(bool_clause)
+
+        allow(bool_clause).to receive(:should).and_yield(bool_clause)
+        allow(bool_clause).to receive(:<<).and_return(bool_clause)
+
+        query_clauses.exists(field: 'build_job_name')
+        other.range(field: 'build_number', gt: 150)
+      end
+
+      it 'returns a new instance of the class' do
+        expect(method_call).to be_a(described_class)
+      end
+
+      it 'creates a boolean clause to put together the two enclosed clauses' do
+        expect(JayAPI::Elasticsearch::QueryBuilder::QueryClauses::Bool).to receive(:new)
+        method_call
+      end
+
+      it "uses a 'should' boolean clause to join the two enclosed clauses" do
+        expect(bool_clause).to receive(:should)
+        method_call
+      end
+
+      it "adds the receiver's top-level clause to the created boolean clause" do
+        expect(bool_clause).to receive(:<<).with(exists_clause)
+        method_call
+      end
+
+      it "adds 'other's top-level clause to the created boolean clause" do
+        expect(bool_clause).to receive(:<<).with(range_clause)
         method_call
       end
 

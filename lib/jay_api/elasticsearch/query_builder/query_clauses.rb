@@ -110,6 +110,23 @@ module JayAPI
           end
         end
 
+        # Creates a new +QueryClauses+ object representing the intersection of
+        # the receiver and the given object. The individual top-query clauses
+        # are combined using a +must+ boolean clause.
+        # @param [JayAPI::Elasticsearch::QueryBuilder::QueryClauses] other The
+        #   +QueryClauses+ object the receiver should be combined with.
+        # @return [JayAPI::Elasticsearch::QueryBuilder::QueryClauses] A new
+        #   +QueryClauses+ object which is a combination of the receiver and
+        #   the given object.
+        def intersection(other)
+          combine(other, __method__) do |combined|
+            combined.bool.must do |bool|
+              bool << top_level_clause
+              bool << other.top_level_clause
+            end
+          end
+        end
+
         # Negates the receiver by wrapping its top-level query clause in a
         # +must_not+ boolean clause or replacing it by its inverse clause.
         # @return [self] Returns itself.

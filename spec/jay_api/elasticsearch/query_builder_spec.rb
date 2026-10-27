@@ -738,6 +738,19 @@ RSpec.describe JayAPI::Elasticsearch::QueryBuilder do
     end
   end
 
+  describe '#intersection' do
+    subject(:method_call) { query_builder.intersection(other) }
+
+    let(:expected_error) { "Cannot create an intersection of #{described_class} and Array" }
+
+    it_behaves_like '#combine', operation: :intersection do
+      it "creates an intersection of the receiver's query and the query from 'other'" do
+        expect(query_clauses).to receive(:intersection).with(other_query_clauses)
+        method_call
+      end
+    end
+  end
+
   describe '#clone' do
     subject(:method_call) { query_builder.clone }
 
